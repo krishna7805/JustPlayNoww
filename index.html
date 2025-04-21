@@ -2,23 +2,74 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>My Game Site</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
   <h1>🎮 Welcome to My Game Site</h1>
 
   <div class="game-gallery">
+
+    <!-- Flappy Bird -->
     <div class="game-card">
-        <iframe 
-        src="https://nebez.github.io/floppybird/" 
-        width="480" 
-        height="640" 
-        frameborder="0" 
-        allowfullscreen 
-        title="Flappy Bird Game">
-      </iframe>
+      <h2>Flappy Bird</h2>
+      <a href="https://nebez.github.io/floppybird/" target="gameFrame">
+        <img src="img/flappybird.png" alt="Flappy Bird" />
+        <p>Click to Play</p>
+      </a>
     </div>
+
+    <!-- T-Rex Runner -->
+    <div class="game-card">
+      <h2>Chrome Dino (T-Rex Runner)</h2>
+      <a href="https://wayou.github.io/t-rex-runner/" target="gameFrame">
+        <img src="img/trexrunner.png" alt="T-Rex Runner" />
+        <p>Click to Play</p>
+      </a>
+    </div>
+
+    <!-- 2048 -->
+    <div class="game-card">
+      <h2>2048</h2>
+      <a href="https://play2048.co/" target="gameFrame">
+        <img src="img/2048.png" alt="2048 Game" />
+        <p>Click to Play</p>
+      </a>
+    </div>
+
+    <!-- Helix Jump -->
+    <div class="game-card">
+      <h2>Helix Jump</h2>
+      <a href="https://games.construct.net/3395/latest" target="gameFrame">
+        <img src="img/helixjump.png" alt="Helix Jump" />
+        <p>Click to Play</p>
+      </a>
+    </div>
+
+    <!-- Breakout -->
+    <div class="game-card">
+      <h2>Breakout</h2>
+      <a href="https://raw.githack.com/davidshimjs/breakout/master/index.html" target="gameFrame">
+        <img src="img/breakout.png" alt="Breakout Game" />
+        <p>Click to Play</p>
+      </a>
+    </div>
+
+    <!-- Snake -->
+    <div class="game-card">
+      <h2>Snake Game</h2>
+      <a href="https://playsnake.org/" target="gameFrame">
+        <img src="img/snake.png" alt="Snake Game" />
+        <p>Click to Play</p>
+      </a>
+    </div>
+
   </div>
+
+  <!-- Frame to load selected game -->
+  <iframe name="gameFrame" width="100%" height="700px" style="border: 2px solid rgb(227, 152, 152);"></iframe>
+
 </body>
 </html>
