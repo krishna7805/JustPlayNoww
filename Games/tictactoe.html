@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>❌ Tic Tac Toe ⭕</title>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Press Start 2P', cursive;
+      background: linear-gradient(135deg, #1f1c2c, #928dab);
+      color: #ffffff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      flex-direction: column;
+      padding: 1rem;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+      color: #fff;
+      text-shadow: 2px 2px 0 #000;
+      text-align: center;
+    }
+
+    .controls {
+      margin-bottom: 20px;
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .top-controls {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    select, button, label {
+      padding: 0.5rem 1rem;
+      font-family: 'Press Start 2P', cursive;
+      font-size: 0.7rem;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      background-color: #ffffff;
+      color: #333;
+    }
+
+    .board {
+      display: grid;
+      grid-template-columns: repeat(3, 100px);
+      grid-template-rows: repeat(3, 100px);
+      gap: 15px;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 15px;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+
+    .cell {
+      width: 100px;
+      height: 100px;
+      font-size: 2.5rem;
+      color: #ffffff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 15px;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.2s;
+    }
+
+    .cell:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: scale(1.05);
+    }
+
+    .cell.taken {
+      cursor: default;
+      pointer-events: none;
+    }
+
+    .status {
+      margin-top: 20px;
+      font-size: 1rem;
+      color: white;
+      text-align: center;
+    }
+
+    .end-controls {
+      margin-top: 15px;
+      display: none;
+      justify-content: center;
+      gap: 1rem;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    @media (max-width: 400px) {
+      .board {
+        grid-template-columns: repeat(3, 80px);
+        grid-template-rows: repeat(3, 80px);
+      }
+      .cell {
+        width: 80px;
+        height: 80px;
+        font-size: 2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>❌ Tic Tac Toe ⭕</h1>
+
+  <div class="top-controls">
+    <button onclick="toggleBot()" id="botToggle">Enable Bot</button>
+    <select id="difficultySelect" class="hidden">
+      <option value="noob">Noob</option>
+      <option value="pro">Pro</option>
+      <option value="god">God</option>
+    </select>
+    <select id="modeSelect">
+      <option value="classic">Classic Mode</option>
+      <option value="timerush">Time Rush Mode</option>
+      <option value="endless">Endless Mode</option>
+    </select>
+    <button onclick="resetGame()" id="restartBtn" class="hidden">Restart</button>
+  </div>
+
+  <div class="board" id="board"></div>
+  <div class="status" id="statusText">Player X's Turn</div>
+  <div class="end-controls" id="endControls">
+    <button onclick="resetGame()">Play Again</button>
+  </div>
+
+  <script>
+    const board = document.getElementById('board');
+    const statusText = document.getElementById('statusText');
+    const difficultySelect = document.getElementById('difficultySelect');
+    const botToggleBtn = document.getElementById('botToggle');
+    const restartBtn = document.getElementById('restartBtn');
+    const modeSelect = document.getElementById('modeSelect');
+    const endControls = document.getElementById('endControls');
+
+    let currentPlayer = 'X';
+    let cells = Array(9).fill(null);
+    let gameActive = true;
+    let botEnabled = false;
+    let turnTimer;
+
+    function createBoard() {
+      board.innerHTML = '';
+      cells = Array(9).fill(null);
+      gameActive = true;
+      currentPlayer = 'X';
+      statusText.textContent = "Player X's Turn";
+      endControls.style.display = 'none';
+      restartBtn.classList.add('hidden');
+
+      for (let i = 0; i < 9; i++) {
+        const cell = document.createElement('div');
+        cell.classList.add('cell');
+        cell.dataset.index = i;
+        cell.addEventListener('click', handleClick);
+        board.appendChild(cell);
+      }
+
+      if (modeSelect.value === 'timerush') {
+        startTurnTimer();
+      }
+    }
+
+    function startTurnTimer() {
+      clearTimeout(turnTimer);
+      turnTimer = setTimeout(() => {
+        if (gameActive) {
+          currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+          statusText.textContent = `⏱ Time's up! Player ${currentPlayer}'s Turn`;
+          if (botEnabled && currentPlayer === 'O') {
+            botMove();
+          } else if (modeSelect.value === 'timerush') {
+            startTurnTimer();
+          }
+        }
+      }, 3000);
+    }
+
+    function handleClick(e) {
+      const index = e.target.dataset.index;
+      if (!gameActive || cells[index]) return;
+
+      clearTimeout(turnTimer);
+      makeMove(index);
+
+      if (botEnabled && gameActive && currentPlayer === 'O') {
+        setTimeout(() => botMove(), 400);
+      } else if (modeSelect.value === 'timerush') {
+        startTurnTimer();
+      }
+    }
+
+    function makeMove(index) {
+      cells[index] = currentPlayer;
+      const cellEl = board.children[index];
+      cellEl.textContent = currentPlayer;
+      cellEl.classList.add('taken');
+
+      if (checkWinner()) {
+        statusText.textContent = `🎉 Player ${currentPlayer} Wins!`;
+        gameActive = false;
+        endControls.style.display = 'flex';
+        restartBtn.classList.remove('hidden');
+        return;
+      }
+
+      if (cells.every(cell => cell)) {
+        if (modeSelect.value === 'endless') {
+          removeOldestMove();
+        } else {
+          statusText.textContent = "It's a Draw!";
+          gameActive = false;
+          endControls.style.display = 'flex';
+          restartBtn.classList.remove('hidden');
+          return;
+        }
+      }
+
+      currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+      statusText.textContent = `Player ${currentPlayer}'s Turn`;
+    }
+
+    function removeOldestMove() {
+      const firstMoveIndex = cells.findIndex(cell => cell);
+      if (firstMoveIndex !== -1) {
+        cells[firstMoveIndex] = null;
+        const cellEl = board.children[firstMoveIndex];
+        cellEl.textContent = '';
+        cellEl.classList.remove('taken');
+      }
+    }
+
+    function botMove() {
+      const level = difficultySelect.value;
+      let index;
+
+      if (level === 'noob') {
+        const available = cells.map((v, i) => v ? null : i).filter(i => i !== null);
+        index = available[Math.floor(Math.random() * available.length)];
+      } else if (level === 'pro') {
+        index = findWinningMove('O') || findWinningMove('X') || randomMove();
+      } else {
+        index = minimax(cells, 'O').index;
+      }
+
+      if (index !== undefined && cells[index] === null) makeMove(index);
+
+      if (modeSelect.value === 'timerush') {
+        startTurnTimer();
+      }
+    }
+
+    function findWinningMove(player) {
+      for (let i = 0; i < 9; i++) {
+        if (!cells[i]) {
+          cells[i] = player;
+          if (checkWinner()) {
+            cells[i] = null;
+            return i;
+          }
+          cells[i] = null;
+        }
+      }
+      return null;
+    }
+
+    function randomMove() {
+      const available = cells.map((v, i) => v ? null : i).filter(i => i !== null);
+      return available[Math.floor(Math.random() * available.length)];
+    }
+
+    function minimax(newBoard, player) {
+      const huPlayer = 'X';
+      const aiPlayer = 'O';
+      const availSpots = newBoard.map((v, i) => v ? null : i).filter(i => i !== null);
+
+      if (checkWin(newBoard, huPlayer)) return { score: -10 };
+      if (checkWin(newBoard, aiPlayer)) return { score: 10 };
+      if (availSpots.length === 0) return { score: 0 };
+
+      const moves = [];
+      for (let i = 0; i < availSpots.length; i++) {
+        const move = {};
+        move.index = availSpots[i];
+        newBoard[availSpots[i]] = player;
+
+        const result = minimax(newBoard, player === aiPlayer ? huPlayer : aiPlayer);
+        move.score = result.score;
+        newBoard[availSpots[i]] = null;
+        moves.push(move);
+      }
+
+      let bestMove;
+      if (player === aiPlayer) {
+        let bestScore = -Infinity;
+        for (let i = 0; i < moves.length; i++) {
+          if (moves[i].score > bestScore) {
+            bestScore = moves[i].score;
+            bestMove = i;
+          }
+        }
+      } else {
+        let bestScore = Infinity;
+        for (let i = 0; i < moves.length; i++) {
+          if (moves[i].score < bestScore) {
+            bestScore = moves[i].score;
+            bestMove = i;
+          }
+        }
+      }
+
+      return moves[bestMove];
+    }
+
+    function checkWin(boardState, player) {
+      const winPatterns = [
+        [0,1,2], [3,4,5], [6,7,8],
+        [0,3,6], [1,4,7], [2,5,8],
+        [0,4,8], [2,4,6]
+      ];
+      return winPatterns.some(pattern => {
+        const [a,b,c] = pattern;
+        return boardState[a] === player && boardState[b] === player && boardState[c] === player;
+      });
+    }
+
+    function checkWinner() {
+      return checkWin(cells, currentPlayer);
+    }
+
+    function toggleBot() {
+      botEnabled = !botEnabled;
+      botToggleBtn.textContent = botEnabled ? "Disable Bot" : "Enable Bot";
+      difficultySelect.classList.toggle('hidden', !botEnabled);
+    }
+
+    function resetGame() {
+      clearTimeout(turnTimer);
+      createBoard();
+    }
+
+    createBoard();
+  </script>
+</body>
+</html>
