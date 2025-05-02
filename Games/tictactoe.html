@@ -112,6 +112,14 @@
       display: none !important;
     }
 
+    .scoreboard {
+      display: flex;
+      gap: 2rem;
+      margin-top: 10px;
+      font-size: 0.8rem;
+      justify-content: center;
+    }
+
     @media (max-width: 400px) {
       .board {
         grid-template-columns: repeat(3, 80px);
@@ -140,11 +148,16 @@
       <option value="timerush">Time Rush Mode</option>
       <option value="endless">Endless Mode</option>
     </select>
-    <button onclick="resetGame()" id="restartBtn" class="hidden">Restart</button>
+    <button onclick="resetScores()">Reset Scores</button>
   </div>
-
+  <div class="scoreboard">
+    <span>X Wins: <span id="scoreX">0</span></span>
+    <span>O Wins: <span id="scoreO">0</span></span>
+  </div>
+  <br>
   <div class="board" id="board"></div>
   <div class="status" id="statusText">Player X's Turn</div>
+  
   <div class="end-controls" id="endControls">
     <button onclick="resetGame()">Play Again</button>
   </div>
@@ -154,9 +167,11 @@
     const statusText = document.getElementById('statusText');
     const difficultySelect = document.getElementById('difficultySelect');
     const botToggleBtn = document.getElementById('botToggle');
-    const restartBtn = document.getElementById('restartBtn');
     const modeSelect = document.getElementById('modeSelect');
     const endControls = document.getElementById('endControls');
+    const scoreX = document.getElementById('scoreX');
+    const scoreO = document.getElementById('scoreO');
+    let wins = { X: 0, O: 0 };
 
     let currentPlayer = 'X';
     let cells = Array(9).fill(null);
@@ -171,7 +186,6 @@
       currentPlayer = 'X';
       statusText.textContent = "Player X's Turn";
       endControls.style.display = 'none';
-      restartBtn.classList.add('hidden');
 
       for (let i = 0; i < 9; i++) {
         const cell = document.createElement('div');
@@ -222,10 +236,13 @@
       cellEl.classList.add('taken');
 
       if (checkWinner()) {
+        wins[currentPlayer]++;
+        scoreX.textContent = wins.X;
+        scoreO.textContent = wins.O;
+
         statusText.textContent = `🎉 Player ${currentPlayer} Wins!`;
         gameActive = false;
         endControls.style.display = 'flex';
-        restartBtn.classList.remove('hidden');
         return;
       }
 
@@ -353,7 +370,7 @@
       return checkWin(cells, currentPlayer);
     }
 
-    function toggleBot() {
+    function toggleBot() { 
       botEnabled = !botEnabled;
       botToggleBtn.textContent = botEnabled ? "Disable Bot" : "Enable Bot";
       difficultySelect.classList.toggle('hidden', !botEnabled);
@@ -362,6 +379,12 @@
     function resetGame() {
       clearTimeout(turnTimer);
       createBoard();
+    }
+
+    function resetScores() {
+      wins = { X: 0, O: 0 };
+      scoreX.textContent = 0;
+      scoreO.textContent = 0;
     }
 
     createBoard();
