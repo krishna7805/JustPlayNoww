@@ -78,9 +78,8 @@ main.game-gallery {
 
 .game-card p {
   color: #e9f0fc;
-  font-weight: bold;
+  font-weight: bolder;
 }
-
 .game-card a {
   display: inline-block;
   margin-top: 1rem;
