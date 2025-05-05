@@ -13,12 +13,16 @@
     <p>Click a game to start playing instantly!</p>
   </header>
 
+  <section id="gameFrameContainer" class="game-frame-section" style="display: none;">
+    <iframe name="gameFrame" frameborder="0" allowfullscreen></iframe>
+  </section>
+
   <nav>
   <main class="game-gallery">
 
     <div class="game-card">
       <h2>Flappy Bird</h2>
-      <a href="https://nebez.github.io/floppybird/" target="gameFrame">
+      <a href="https://nebez.github.io/floppybird/" target="gameFrame" onclick="document.getElementById('gameFrameContainer').style.display = 'block';">
         <img src="img/flappybird.png" alt="Flappy Bird" />
         <p>Play Now</p>
       </a>
@@ -26,7 +30,7 @@
 
     <div class="game-card">
       <h2>Chrome Dino</h2>
-      <a href="https://wayou.github.io/t-rex-runner/" target="gameFrame">
+      <a href="https://wayou.github.io/t-rex-runner/" target="gameFrame" onclick="document.getElementById('gameFrameContainer').style.display = 'block';">
         <img src="img/t-rex.png" alt="Chrome Dino" />
         <p>Play Now</p>
       </a>
@@ -42,7 +46,7 @@
 
     <div class="game-card">
       <h2>One Shot Golf</h2>
-      <a href="https://games.construct.net/3395/latest" target="gameFrame">
+      <a href="https://games.construct.net/3395/latest" target="gameFrame" onclick="document.getElementById('gameFrameContainer').style.display = 'block';">
         <img src="img/oneshotgolf.png" alt="One Shot Golf" />
         <p>Play Now</p>
       </a>
@@ -58,29 +62,25 @@
 
     <div class="game-card">
       <h2>Pacman</h2>
-      <a href="https://pacman.platzh1rsch.ch/" target="gameFrame">
+      <a href="https://pacman.platzh1rsch.ch/" target="gameFrame" onclick="document.getElementById('gameFrameContainer').style.display = 'block';">
         <img src="img/pacman.png" alt="Pacman" />
         <p>Play Now</p>
       </a>
     </div>
     <div class="game-card">
       <h2>Tic Tac Toe</h2>
-      <a href="HTML/tictactoe.html" target="gameFrame">
+      <a href="HTML/tictactoe.html" target="gameFrame" onclick="document.getElementById('gameFrameContainer').style.display = 'block';">
         <img src="img/tictactoe.png" alt="Tic Tac Toe" />
         <p>Play Now</p>
       </a>
       </div>
       <div class="game-card">
         <h2>Drop n Connect</h2>
-        <a href="HTML/dropnconnect.html" target="gameFrame">
+        <a href="HTML/dropnconnect.html" target="gameFrame" onclick="document.getElementById('gameFrameContainer').style.display = 'block';">
           <img src="img/dropnconnect.png" alt="Drop n Connect" />
           <p>Play Now</p>
 
   </main>
-
-  <section class="game-frame-section">
-    <iframe name="gameFrame" frameborder="0" allowfullscreen></iframe>
-  </section>
 
 </body>
 </html>
