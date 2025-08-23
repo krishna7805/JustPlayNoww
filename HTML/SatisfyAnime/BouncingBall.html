@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bouncing Ball in Growing Polygon</title>
+  <style>
+    :root { --bg: #0f1220; --fg: #e8e8f0; --accent:#7dd3fc; --muted:#94a3b8; }
+    html, body { height: 100%; margin: 0; }
+    body { background: radial-gradient(1200px 800px at 70% -10%, #1e223a 0%, var(--bg) 50%); color: var(--fg); font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji"; }
+    .wrap { display:flex; align-items:center; justify-content:center; height:100%; }
+    .panel { width:min(900px, 92vw); }
+    canvas { width: 100%; height: auto; display:block; border-radius: 18px; box-shadow: 0 10px 40px rgba(0,0,0,.35), inset 0 0 0 1px rgba(255,255,255,.06); background: linear-gradient(180deg, rgba(255,255,255,.02), rgba(0,0,0,.1)); }
+    .hud { display:flex; gap:14px; flex-wrap:wrap; align-items:center; justify-content:space-between; margin: 14px 6px 0; }
+    .badge { display:inline-flex; align-items:center; gap:8px; padding:8px 12px; border-radius: 999px; background: rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.08); font-weight:600; }
+    .badge small { color: var(--muted); font-weight: 600; letter-spacing:.2px; }
+    button { appearance:none; border:none; padding:10px 14px; border-radius: 12px; background: rgba(125,211,252,.12); color: var(--fg); font-weight:700; cursor:pointer; border:1px solid rgba(125,211,252,.35); }
+    button:hover { filter: brightness(1.1); }
+    .slider { display:flex; align-items:center; gap:10px; }
+    input[type="range"] { width: 200px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="panel">
+      <canvas id="stage" width="900" height="600" aria-label="Bouncing ball inside polygon that gains sides on collisions."></canvas>
+      <div class="hud">
+        <div class="badge" id="sidesBadge">⬡ <small>Sides:</small> <span id="sides">3</span></div>
+        <div class="badge" id="speedBadge">🏃 <small>Speed:</small> <span id="speed">1.00×</span></div>
+        <div class="badge" id="hitsBadge">💥 <small>Collisions:</small> <span id="hits">0</span></div>
+        <div style="flex:1"></div>
+        <div class="slider">
+          <small>Speed gain / hit</small>
+          <input id="gain" type="range" min="1.01" max="1.20" step="0.01" value="1.05" />
+        </div>
+        <button id="reset">Reset</button>
+      </div>
+    </div>
+  </div>
+
+  <audio id="hitSound" preload="auto">
+    <source src="As" type="audio/mp3">
+    <source src="https://actions.google.com/sounds/v1/cartoon/wood_plank_flicks.mp3" type="audio/mpeg">
+  </audio>
+
+  <script>
+    const canvas = document.getElementById('stage');
+    const ctx = canvas.getContext('2d');
+
+    const sidesEl = document.getElementById('sides');
+    const speedEl = document.getElementById('speed');
+    const hitsEl  = document.getElementById('hits');
+    const gainEl  = document.getElementById('gain');
+    const resetBtn = document.getElementById('reset');
+    const hitSound = document.getElementById('hitSound');
+
+    const W = canvas.width, H = canvas.height;
+    const center = { x: W/2, y: H/2 };
+
+    const state = {
+      rCirc: Math.min(W, H) * 0.38,
+      n: 3,
+      ball: { x: center.x, y: center.y, r: 8, vx: 0, vy: 0, speed: 240 },
+      hits: 0,
+      speedGain: parseFloat(gainEl.value),
+      lastTime: 0,
+    };
+
+    function randDir() {
+      const a = Math.random() * Math.PI * 2;
+      return { x: Math.cos(a), y: Math.sin(a) };
+    }
+
+    function setInitialVelocity() {
+      const d = randDir();
+      state.ball.vx = d.x * state.ball.speed;
+      state.ball.vy = d.y * state.ball.speed;
+    }
+
+    function polygonVertices(n, r, cx, cy, rotation = -Math.PI / 2) {
+      const verts = [];
+      for (let i = 0; i < n; i++) {
+        const a = rotation + (i * 2 * Math.PI) / n;
+        verts.push({ x: cx + r * Math.cos(a), y: cy + r * Math.sin(a) });
+      }
+      return verts;
+    }
+
+    function edgesFromVerts(verts) {
+      const edges = [];
+      for (let i = 0; i < verts.length; i++) {
+        const a = verts[i];
+        const b = verts[(i + 1) % verts.length];
+        const ex = b.x - a.x;
+        const ey = b.y - a.y;
+        const len = Math.hypot(ex, ey);
+        const ux = ex / len, uy = ey / len;
+        let nx = -uy, ny = ux;
+        const mx = (a.x + b.x) * 0.5;
+        const my = (a.y + b.y) * 0.5;
+        const toCenterX = center.x - mx, toCenterY = center.y - my;
+        const dot = nx * toCenterX + ny * toCenterY;
+        if (dot < 0) { nx = -nx; ny = -ny; }
+        edges.push({ a, b, ux, uy, nx, ny, len });
+      }
+      return edges;
+    }
+
+    let verts = polygonVertices(state.n, state.rCirc, center.x, center.y);
+    let edges = edgesFromVerts(verts);
+
+    function signedDistanceToLine(p, edge) {
+      return edge.nx * (p.x - edge.a.x) + edge.ny * (p.y - edge.a.y);
+    }
+
+    function projectPointOnSegment(px, py, ax, ay, bx, by) {
+      const vx = bx - ax, vy = by - ay;
+      const len2 = vx*vx + vy*vy;
+      const t = Math.max(0, Math.min(1, ((px - ax) * vx + (py - ay) * vy) / len2));
+      return { x: ax + t * vx, y: ay + t * vy, t };
+    }
+
+    function reflectVelocity(vx, vy, nx, ny) {
+      const dot = vx * nx + vy * ny;
+      return { vx: vx - 2 * dot * nx, vy: vy - 2 * dot * ny };
+    }
+
+    function update(dt) {
+      const b = state.ball;
+      b.x += b.vx * dt;
+      b.y += b.vy * dt;
+
+      let collided = false;
+      let best = null;
+
+      for (const e of edges) {
+        const sd = signedDistanceToLine(b, e);
+        const proj = projectPointOnSegment(b.x, b.y, e.a.x, e.a.y, e.b.x, e.b.y);
+        const cx = proj.x, cy = proj.y;
+        const dx = b.x - cx, dy = b.y - cy;
+        const dist = Math.hypot(dx, dy);
+        const penetration = b.r - sd;
+        const onSegment = proj.t > 0 && proj.t < 1;
+        const nearVertex = dist < b.r && (proj.t === 0 || proj.t === 1);
+
+        if ((penetration > 0 && onSegment) || nearVertex) {
+          const depth = onSegment ? penetration : (b.r - dist);
+          if (!best || depth > best.depth) {
+            best = { edge: e, depth, cx, cy, onSegment, nearVertex };
+          }
+        }
+      }
+
+      if (best) {
+        collided = true;
+        const e = best.edge;
+        const push = best.depth + 0.5;
+        b.x += e.nx * push;
+        b.y += e.ny * push;
+        const rv = reflectVelocity(b.vx, b.vy, e.nx, e.ny);
+        b.vx = rv.vx;
+        b.vy = rv.vy;
+      }
+
+      if (collided) {
+        state.hits += 1;
+        b.vx *= state.speedGain; b.vy *= state.speedGain;
+        b.speed *= state.speedGain;
+        state.n += 1;
+        verts = polygonVertices(state.n, state.rCirc, center.x, center.y);
+        edges = edgesFromVerts(verts);
+
+        // play satisfying sound
+        hitSound.currentTime = 0;
+        hitSound.play();
+      }
+    }
+
+    function draw() {
+      ctx.clearRect(0,0,W,H);
+      ctx.save();
+      ctx.globalAlpha = 0.06;
+      for (let i = 0; i <= W; i += 30) {
+        ctx.beginPath(); ctx.moveTo(i,0); ctx.lineTo(i,H); ctx.strokeStyle = '#fff'; ctx.stroke();
+      }
+      for (let j = 0; j <= H; j += 30) {
+        ctx.beginPath(); ctx.moveTo(0,j); ctx.lineTo(W,j); ctx.strokeStyle = '#fff'; ctx.stroke();
+      }
+      ctx.restore();
+
+      ctx.beginPath();
+      ctx.moveTo(verts[0].x, verts[0].y);
+      for (let i = 1; i < verts.length; i++) ctx.lineTo(verts[i].x, verts[i].y);
+      ctx.closePath();
+      ctx.fillStyle = 'rgba(125, 211, 252, 0.06)';
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(125, 211, 252, 0.6)';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.arc(center.x, center.y, 2, 0, Math.PI*2);
+      ctx.fillStyle = 'rgba(255,255,255,0.7)';
+      ctx.fill();
+
+      ctx.save();
+      ctx.shadowColor = 'rgba(125,211,252,0.8)';
+      ctx.shadowBlur = 18;
+      ctx.beginPath();
+      ctx.arc(state.ball.x, state.ball.y, state.ball.r, 0, Math.PI * 2);
+      ctx.fillStyle = '#e2f3ff';
+      ctx.fill();
+      ctx.restore();
+
+      sidesEl.textContent = state.n;
+      speedEl.textContent = (state.ball.speed / 240).toFixed(2) + '×';
+      hitsEl.textContent  = state.hits;
+    }
+
+    function loop(ts) {
+      if (!state.lastTime) state.lastTime = ts;
+      const dt = Math.min(0.032, (ts - state.lastTime) / 1000);
+      state.lastTime = ts;
+      const steps = Math.max(1, Math.ceil((state.ball.speed / 240)));
+      const subDt = dt / steps;
+      for (let i = 0; i < steps; i++) update(subDt);
+      draw();
+      requestAnimationFrame(loop);
+    }
+
+    gainEl.addEventListener('input', () => {
+      state.speedGain = parseFloat(gainEl.value);
+    });
+
+    resetBtn.addEventListener('click', () => {
+      state.n = 3; state.hits = 0; state.ball.speed = 240; state.ball.r = 8;
+      state.ball.x = center.x; state.ball.y = center.y; setInitialVelocity();
+      verts = polygonVertices(state.n, state.rCirc, center.x, center.y);
+      edges = edgesFromVerts(verts);
+      state.lastTime = 0;
+    });
+
+    setInitialVelocity();
+    requestAnimationFrame(loop);
+  </script>
+</body>
+</html>
