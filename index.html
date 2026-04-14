@@ -3,94 +3,441 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>My Game Site</title>
+  <title>JustPlayNoww — Free Online Games Portal</title>
+  <meta name="description" content="Play free online games instantly — no downloads, no login. Enjoy Flappy Bird, 2048, Pac-Man, Tic Tac Toe, Minesweeper, and more!" />
+  <meta name="keywords" content="free online games, browser games, play now, flappy bird, pacman, 2048, tic tac toe, minesweeper" />
+  <meta name="author" content="krishna7805" />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="JustPlayNoww — Free Online Games Portal" />
+  <meta property="og:description" content="Play free online games instantly in your browser. No downloads needed!" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://krishna7805.github.io/JustPlayNoww/" />
+
+  <!-- Favicon (emoji fallback) -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎮</text></svg>" />
+
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-  <header>
-    <h1>🎮 Welcome to Game Zone</h1>
-    <p>Click a game to start playing instantly!</p>
+  <!-- Background Effects -->
+  <canvas id="particles-canvas" aria-hidden="true"></canvas>
+  <div class="bg-glow bg-glow--purple" aria-hidden="true"></div>
+  <div class="bg-glow bg-glow--blue" aria-hidden="true"></div>
+  <div class="bg-glow bg-glow--cyan" aria-hidden="true"></div>
+
+  <!-- Header -->
+  <header class="site-header">
+    <div class="site-header__logo">
+      <span class="site-header__logo-icon" aria-hidden="true">🎮</span>
+      <h1 class="site-header__title">JustPlayNoww</h1>
+    </div>
+    <p class="site-header__subtitle">Free browser games — no downloads, no login. Just pick a game and play!</p>
   </header>
 
-  <section id="gameFrameContainer" class="game-frame-section" style="display: none;">
-    <iframe name="gameFrame" frameborder="0" allowfullscreen></iframe>
+  <!-- Search -->
+  <div class="search-container">
+    <input
+      type="text"
+      id="search-input"
+      class="search-bar"
+      placeholder="Search games..."
+      autocomplete="off"
+      aria-label="Search games"
+    />
+    <span class="search-icon" aria-hidden="true">🔍</span>
+  </div>
+
+  <!-- Category Filters -->
+  <div class="filter-tabs" role="tablist" aria-label="Filter games by category">
+    <button class="filter-tab active" data-filter="all" role="tab" aria-selected="true">All Games</button>
+    <button class="filter-tab" data-filter="builtin" role="tab" aria-selected="false">🏠 Built-in</button>
+    <button class="filter-tab" data-filter="arcade" role="tab" aria-selected="false">🕹️ Arcade</button>
+    <button class="filter-tab" data-filter="puzzle" role="tab" aria-selected="false">🧩 Puzzle</button>
+    <button class="filter-tab" data-filter="classic" role="tab" aria-selected="false">👾 Classic</button>
+    <button class="filter-tab" data-filter="skill" role="tab" aria-selected="false">⚡ Skill</button>
+  </div>
+
+  <!-- Stats Bar -->
+  <div class="stats-bar">
+    <div class="stats-bar__item">
+      <div class="stats-bar__number" id="total-games">12</div>
+      <div class="stats-bar__label">Games</div>
+    </div>
+    <div class="stats-bar__item">
+      <div class="stats-bar__number">6</div>
+      <div class="stats-bar__label">Built-in</div>
+    </div>
+    <div class="stats-bar__item">
+      <div class="stats-bar__number">5</div>
+      <div class="stats-bar__label">Categories</div>
+    </div>
+    <div class="stats-bar__item">
+      <div class="stats-bar__number">∞</div>
+      <div class="stats-bar__label">Fun</div>
+    </div>
+  </div>
+
+  <!-- Game Frame (hidden by default) -->
+  <section id="game-frame-container" class="game-frame-section" style="display: none;">
+    <div class="game-frame-wrapper">
+      <div class="game-frame-header">
+        <span class="game-frame-title">🎮 <span id="game-frame-name">Game</span></span>
+        <button class="close-game-btn" onclick="closeGame()" aria-label="Close game">✕ Close</button>
+      </div>
+      <div class="game-frame-loading" id="game-loading">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Loading game...</div>
+      </div>
+      <iframe id="game-iframe" name="gameFrame" allowfullscreen title="Game player"></iframe>
+    </div>
   </section>
 
-  <script>
-    function showAndScrollToGameFrame() {
-      var frame = document.getElementById('gameFrameContainer');
-      frame.style.display = 'block';
-      frame.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-  </script>
+  <!-- Game Gallery -->
+  <main class="game-gallery" id="game-gallery">
 
-  <nav>
-  <main class="game-gallery">
-
-    <div class="game-card">
-      <h2>Flappy Bird</h2>
-      <a href="https://nebez.github.io/floppybird/" target="gameFrame" onclick="showAndScrollToGameFrame();">
-        <img src="img/flappybird.png" alt="Flappy Bird" />
-        <p>Play Now</p>
-      </a>
-    </div>
-
-    <div class="game-card">
-      <h2>Chrome Dino</h2>
-      <a href="https://wayou.github.io/t-rex-runner/" target="gameFrame" onclick="showAndScrollToGameFrame();">
-        <img src="img/t-rex.png" alt="Chrome Dino" />
-        <p>Play Now</p>
-      </a>
-    </div>
-
-    <div class="game-card">
-      <h2>2048</h2>
-      <a href="https://play2048.co/">
-        <img src="img/2048.png" alt="2048 Game" />
-        <p>Play Now</p>
-      </a>
-    </div>
-
-    <div class="game-card">
-      <h2>One Shot Golf</h2>
-      <a href="https://games.construct.net/3395/latest" target="gameFrame" onclick="document.getElementById('gameFrameContainer').style.display = 'block';">
-        <img src="img/oneshotgolf.png" alt="One Shot Golf" />
-        <p>Play Now</p>
-      </a>
-    </div>
-
-    <div class="game-card">
-      <h2>Snake Game</h2>
-      <a href="https://playsnake.org/">
-        <img src="img/Snake.png" alt="Snake Game" />
-        <p>Play Now</p>
-      </a>
-    </div>
-
-    <div class="game-card">
-      <h2>Pacman</h2>
-      <a href="https://pacman.platzh1rsch.ch/" target="gameFrame" onclick="showAndScrollToGameFrame();">
-        <img src="img/pacman.png" alt="Pacman" />
-        <p>Play Now</p>
-      </a>
-    </div>
-    <div class="game-card">
-      <h2>Tic Tac Toe</h2>
-      <a href="HTML/tictactoe.html" target="gameFrame" onclick="showAndScrollToGameFrame();">
-        <img src="img/tictactoe.png" alt="Tic Tac Toe" />
-        <p>Play Now</p>
-      </a>
+    <!-- Flappy Bird -->
+    <article class="game-card" data-category="arcade" data-name="Flappy Bird" id="game-flappy-bird">
+      <div class="game-card__image">
+        <img src="img/flappybird.png" alt="Flappy Bird game preview" loading="lazy" />
+        <span class="game-card__badge badge--arcade">Arcade</span>
       </div>
-      <div class="game-card">
-        <h2>Drop n Connect</h2>
-        <a href="HTML/dropnconnect.html" target="gameFrame" onclick="showAndScrollToGameFrame();">
-          <img src="img/dropnconnect.png" alt="Drop n Connect" />
-          <p>Play Now</p>
+      <div class="game-card__content">
+        <h2 class="game-card__title">🐦 Flappy Bird</h2>
+        <p class="game-card__desc">Tap to fly through pipes — the ultimate test of timing and patience!</p>
+        <a href="https://nebez.github.io/floppybird/" target="gameFrame" class="game-card__play-btn" onclick="openGame('Flappy Bird')">
+          Play Now <span class="btn-arrow">→</span>
         </a>
       </div>
+    </article>
+
+    <!-- Chrome Dino -->
+    <article class="game-card" data-category="arcade" data-name="Chrome Dino" id="game-chrome-dino">
+      <div class="game-card__image">
+        <img src="img/t-rex.png" alt="Chrome Dino game preview" loading="lazy" />
+        <span class="game-card__badge badge--arcade">Arcade</span>
+      </div>
+      <div class="game-card__content">
+        <h2 class="game-card__title">🦖 Chrome Dino</h2>
+        <p class="game-card__desc">The classic offline dinosaur runner — jump over cacti and dodge pterodactyls!</p>
+        <a href="https://wayou.github.io/t-rex-runner/" target="gameFrame" class="game-card__play-btn" onclick="openGame('Chrome Dino')">
+          Play Now <span class="btn-arrow">→</span>
+        </a>
+      </div>
+    </article>
+
+    <!-- 2048 -->
+    <article class="game-card" data-category="puzzle" data-name="2048" id="game-2048">
+      <div class="game-card__image">
+        <img src="img/2048.png" alt="2048 game preview" loading="lazy" />
+        <span class="game-card__badge badge--puzzle">Puzzle</span>
+      </div>
+      <div class="game-card__content">
+        <h2 class="game-card__title">🔢 2048</h2>
+        <p class="game-card__desc">Slide tiles and combine numbers — reach the elusive 2048 tile to win!</p>
+        <a href="https://play2048.co/" target="gameFrame" class="game-card__play-btn" onclick="openGame('2048')">
+          Play Now <span class="btn-arrow">→</span>
+        </a>
+      </div>
+    </article>
+
+    <!-- Pac-Man -->
+    <article class="game-card" data-category="classic" data-name="Pac-Man" id="game-pacman">
+      <div class="game-card__image">
+        <img src="img/pacman.png" alt="Pac-Man game preview" loading="lazy" />
+        <span class="game-card__badge badge--classic">Classic</span>
+      </div>
+      <div class="game-card__content">
+        <h2 class="game-card__title">🟡 Pac-Man</h2>
+        <p class="game-card__desc">Eat all the dots, avoid the ghosts — the arcade legend returns!</p>
+        <a href="https://pacman.platzh1rsch.ch/" target="gameFrame" class="game-card__play-btn" onclick="openGame('Pac-Man')">
+          Play Now <span class="btn-arrow">→</span>
+        </a>
+      </div>
+    </article>
+
+    <!-- Snake -->
+    <article class="game-card" data-category="classic" data-name="Snake Game" id="game-snake">
+      <div class="game-card__image">
+        <img src="img/Snake.png" alt="Snake game preview" loading="lazy" />
+        <span class="game-card__badge badge--classic">Classic</span>
+      </div>
+      <div class="game-card__content">
+        <h2 class="game-card__title">🐍 Snake Game</h2>
+        <p class="game-card__desc">Guide the snake, eat food, and grow — don't crash into yourself!</p>
+        <a href="https://playsnake.org/" target="gameFrame" class="game-card__play-btn" onclick="openGame('Snake Game')">
+          Play Now <span class="btn-arrow">→</span>
+        </a>
+      </div>
+    </article>
+
+    <!-- One Shot Golf -->
+    <article class="game-card" data-category="skill" data-name="One Shot Golf" id="game-golf">
+      <div class="game-card__image">
+        <img src="img/oneshotgolf.png" alt="One Shot Golf game preview" loading="lazy" />
+        <span class="game-card__badge badge--skill">Skill</span>
+      </div>
+      <div class="game-card__content">
+        <h2 class="game-card__title">⛳ One Shot Golf</h2>
+        <p class="game-card__desc">Aim, adjust power, and sink it in one shot — physics-based golf fun!</p>
+        <a href="https://games.construct.net/3395/latest" target="gameFrame" class="game-card__play-btn" onclick="openGame('One Shot Golf')">
+          Play Now <span class="btn-arrow">→</span>
+        </a>
+      </div>
+    </article>
+
+    <!-- Tic Tac Toe (Built-in) -->
+    <article class="game-card" data-category="builtin" data-name="Tic Tac Toe" id="game-tictactoe">
+      <div class="game-card__image">
+        <img src="img/tictactoe.png" alt="Tic Tac Toe game preview" loading="lazy" />
+        <span class="game-card__badge badge--builtin">Built-in</span>
+      </div>
+      <div class="game-card__content">
+        <h2 class="game-card__title">❌ Tic Tac Toe</h2>
+        <p class="game-card__desc">Classic X vs O with AI bot — choose Noob, Pro, or God difficulty!</p>
+        <a href="HTML/tictactoe.html" target="gameFrame" class="game-card__play-btn" onclick="openGame('Tic Tac Toe')">
+          Play Now <span class="btn-arrow">→</span>
+        </a>
+      </div>
+    </article>
+
+    <!-- Drop n Connect (Built-in) -->
+    <article class="game-card" data-category="builtin" data-name="Drop n Connect" id="game-dropnconnect">
+      <div class="game-card__image">
+        <img src="img/dropnconnect.png" alt="Drop n Connect game preview" loading="lazy" />
+        <span class="game-card__badge badge--builtin">Built-in</span>
+      </div>
+      <div class="game-card__content">
+        <h2 class="game-card__title">🔴 Drop n Connect</h2>
+        <p class="game-card__desc">Connect four discs in a row — outsmart your opponent with strategy!</p>
+        <a href="HTML/dropnconnect.html" target="gameFrame" class="game-card__play-btn" onclick="openGame('Drop n Connect')">
+          Play Now <span class="btn-arrow">→</span>
+        </a>
+      </div>
+    </article>
+
+    <!-- Memory Match (Built-in — NEW) -->
+    <article class="game-card" data-category="builtin" data-name="Memory Match" id="game-memory">
+      <div class="game-card__image">
+        <img src="img/memory.png" alt="Memory Match game preview" loading="lazy" />
+        <span class="game-card__badge badge--builtin">Built-in</span>
+      </div>
+      <div class="game-card__content">
+        <h2 class="game-card__title">🃏 Memory Match</h2>
+        <p class="game-card__desc">Flip cards and find matching pairs — test your memory and beat the clock!</p>
+        <a href="HTML/memory.html" target="gameFrame" class="game-card__play-btn" onclick="openGame('Memory Match')">
+          Play Now <span class="btn-arrow">→</span>
+        </a>
+      </div>
+    </article>
+
+    <!-- Whack-a-Mole (Built-in — NEW) -->
+    <article class="game-card" data-category="builtin" data-name="Whack-a-Mole" id="game-whackamole">
+      <div class="game-card__image">
+        <img src="img/whackamole.png" alt="Whack-a-Mole game preview" loading="lazy" />
+        <span class="game-card__badge badge--builtin">Built-in</span>
+      </div>
+      <div class="game-card__content">
+        <h2 class="game-card__title">🔨 Whack-a-Mole</h2>
+        <p class="game-card__desc">Smash the moles as they pop up — fast reflexes earn high scores!</p>
+        <a href="HTML/whackamole.html" target="gameFrame" class="game-card__play-btn" onclick="openGame('Whack-a-Mole')">
+          Play Now <span class="btn-arrow">→</span>
+        </a>
+      </div>
+    </article>
+
+    <!-- Typing Speed Test (Built-in — NEW) -->
+    <article class="game-card" data-category="skill" data-name="Typing Speed Test" id="game-typing">
+      <div class="game-card__image">
+        <img src="img/typingtest.png" alt="Typing Speed Test game preview" loading="lazy" />
+        <span class="game-card__badge badge--skill">Skill</span>
+      </div>
+      <div class="game-card__content">
+        <h2 class="game-card__title">⌨️ Typing Speed Test</h2>
+        <p class="game-card__desc">Race against the clock — measure your WPM and accuracy!</p>
+        <a href="HTML/typingtest.html" target="gameFrame" class="game-card__play-btn" onclick="openGame('Typing Speed Test')">
+          Play Now <span class="btn-arrow">→</span>
+        </a>
+      </div>
+    </article>
+
+    <!-- Minesweeper (Built-in — NEW) -->
+    <article class="game-card" data-category="puzzle" data-name="Minesweeper" id="game-minesweeper">
+      <div class="game-card__image">
+        <img src="img/minesweeper.png" alt="Minesweeper game preview" loading="lazy" />
+        <span class="game-card__badge badge--puzzle">Puzzle</span>
+      </div>
+      <div class="game-card__content">
+        <h2 class="game-card__title">💣 Minesweeper</h2>
+        <p class="game-card__desc">Clear the board without detonating mines — logic and luck combined!</p>
+        <a href="HTML/minesweeper.html" target="gameFrame" class="game-card__play-btn" onclick="openGame('Minesweeper')">
+          Play Now <span class="btn-arrow">→</span>
+        </a>
+      </div>
+    </article>
+
+    <!-- No results placeholder -->
+    <div class="no-results" id="no-results" style="display: none;">
+      <div class="no-results__icon">🎮</div>
+      <div class="no-results__text">No games match your search. Try a different keyword!</div>
+    </div>
 
   </main>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <p class="site-footer__text">Made with 💜 — Play games, have fun, repeat.</p>
+    <div class="site-footer__links">
+      <a href="https://github.com/krishna7805/JustPlayNoww" target="_blank" rel="noopener noreferrer" class="site-footer__link">
+        ⭐ Star on GitHub
+      </a>
+      <a href="https://github.com/krishna7805/JustPlayNoww/issues" target="_blank" rel="noopener noreferrer" class="site-footer__link">
+        🐛 Report Issue
+      </a>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script>
+    // ---- Particle Background ----
+    (function initParticles() {
+      const canvas = document.getElementById('particles-canvas');
+      const ctx = canvas.getContext('2d');
+      let particles = [];
+      const PARTICLE_COUNT = 60;
+
+      function resize() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      }
+      resize();
+      window.addEventListener('resize', resize);
+
+      class Particle {
+        constructor() { this.reset(); }
+        reset() {
+          this.x = Math.random() * canvas.width;
+          this.y = Math.random() * canvas.height;
+          this.size = Math.random() * 2 + 0.5;
+          this.speedX = (Math.random() - 0.5) * 0.4;
+          this.speedY = (Math.random() - 0.5) * 0.4;
+          this.opacity = Math.random() * 0.4 + 0.1;
+        }
+        update() {
+          this.x += this.speedX;
+          this.y += this.speedY;
+          if (this.x < 0 || this.x > canvas.width) this.speedX *= -1;
+          if (this.y < 0 || this.y > canvas.height) this.speedY *= -1;
+        }
+        draw() {
+          ctx.beginPath();
+          ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(139, 92, 246, ${this.opacity})`;
+          ctx.fill();
+        }
+      }
+
+      for (let i = 0; i < PARTICLE_COUNT; i++) {
+        particles.push(new Particle());
+      }
+
+      function connectParticles() {
+        for (let i = 0; i < particles.length; i++) {
+          for (let j = i + 1; j < particles.length; j++) {
+            const dx = particles[i].x - particles[j].x;
+            const dy = particles[i].y - particles[j].y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist < 120) {
+              ctx.beginPath();
+              ctx.strokeStyle = `rgba(139, 92, 246, ${0.06 * (1 - dist / 120)})`;
+              ctx.lineWidth = 0.5;
+              ctx.moveTo(particles[i].x, particles[i].y);
+              ctx.lineTo(particles[j].x, particles[j].y);
+              ctx.stroke();
+            }
+          }
+        }
+      }
+
+      function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles.forEach(p => { p.update(); p.draw(); });
+        connectParticles();
+        requestAnimationFrame(animate);
+      }
+      animate();
+    })();
+
+    // ---- Game Frame Management ----
+    function openGame(gameName) {
+      const container = document.getElementById('game-frame-container');
+      const loading = document.getElementById('game-loading');
+      const nameEl = document.getElementById('game-frame-name');
+      const iframe = document.getElementById('game-iframe');
+
+      nameEl.textContent = gameName;
+      container.style.display = 'block';
+      loading.classList.remove('loaded');
+
+      // Show loading then hide when iframe loads
+      iframe.onload = function() {
+        setTimeout(() => loading.classList.add('loaded'), 400);
+      };
+
+      // Smooth scroll to the game frame
+      setTimeout(() => {
+        container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+    }
+
+    function closeGame() {
+      const container = document.getElementById('game-frame-container');
+      const iframe = document.getElementById('game-iframe');
+      container.style.display = 'none';
+      iframe.src = '';
+    }
+
+    // ---- Search & Filter ----
+    const searchInput = document.getElementById('search-input');
+    const filterTabs = document.querySelectorAll('.filter-tab');
+    const gameCards = document.querySelectorAll('.game-card');
+    const noResults = document.getElementById('no-results');
+    let activeFilter = 'all';
+
+    searchInput.addEventListener('input', filterGames);
+
+    filterTabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        filterTabs.forEach(t => { t.classList.remove('active'); t.setAttribute('aria-selected', 'false'); });
+        tab.classList.add('active');
+        tab.setAttribute('aria-selected', 'true');
+        activeFilter = tab.dataset.filter;
+        filterGames();
+      });
+    });
+
+    function filterGames() {
+      const query = searchInput.value.toLowerCase().trim();
+      let visibleCount = 0;
+
+      gameCards.forEach(card => {
+        const name = card.dataset.name.toLowerCase();
+        const category = card.dataset.category;
+        const matchesSearch = name.includes(query);
+        const matchesFilter = activeFilter === 'all' || category === activeFilter;
+
+        if (matchesSearch && matchesFilter) {
+          card.classList.remove('hidden-card');
+          visibleCount++;
+        } else {
+          card.classList.add('hidden-card');
+        }
+      });
+
+      noResults.style.display = visibleCount === 0 ? 'block' : 'none';
+    }
+  </script>
 
 </body>
 </html>

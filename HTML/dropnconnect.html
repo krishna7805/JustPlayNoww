@@ -3,161 +3,289 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Drop n Connect</title>
-  <link rel="stylesheet" href="CSS/dropnconnet.css">
+  <title>Drop n Connect — Connect Four</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
-<style>
+    :root {
+      --board-bg: #1a3a8a;
+      --player-1: #ef4444;
+      --player-2: #eab308;
+      --bg: #0a0a1a;
+      --glass: rgba(255,255,255,0.04);
+      --glass-border: rgba(255,255,255,0.08);
+      --text: #f1f1f7;
+      --text-muted: #6b6b80;
+    }
 
-/* Base styles */
-:root {
-    --connect-board: #0079bf;
-    --player-1: #ea384c;
-    --player-2: #f8cb2e;
-    --white: #ffffff;
-    --gray-100: #f3f4f6;
-    --gray-200: #e5e7eb;
-    --gray-300: #d1d5db;
-    --gray-400: #9ca3af;
-    --gray-500: #6b7280;
-    --gray-700: #374151;
-    --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  }
-  
-  * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-  }
-  
-  body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    line-height: 1.5;
-    background: linear-gradient(to bottom, #f0f7ff, #e0f0ff);
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 2rem 1rem;
-  }
-  
-  .container {
-    width: 100%;
-    max-width: 36rem;
-    background-color: var(--white);
-    border-radius: 0.75rem;
-    box-shadow: var(--shadow);
-    padding: 1rem;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  
-  
-  h1 {
-    font-size: 1.875rem;
-    font-weight: 700;
-    color: var(--connect-board);
-  }
-  
-  .game-board-container {
-    margin-bottom: 1rem;
-  }
-  
-  .game-board {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    grid-template-rows: repeat(6, 1fr);
-    gap: 0;
-    background-color: var(--connect-board);
-    border: 4px solid var(--connect-board);
-    border-radius: 0.5rem;
-    padding: 0.5rem;
-    overflow: hidden;
-  }
-  
-  .cell {
-    position: relative;
-    width: 4rem;
-    height: 4rem;
-    background-color: var(--connect-board);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 0.5rem;
-  }
-  
-  .cell-inner {
-    position: absolute;
-    inset: 0.25rem;
-    background-color: var(--connect-board);
-    border-radius: 50%;
-  }
-  
-  .disc {
-    position: relative;
-    z-index: 10;
-    width: 3rem;
-    height: 3rem;
-    border-radius: 50%;
-    background-color: var(--white);
-    transition: background-color 0.3s ease;
-  }
-  
-  .disc.player-1 {
-    background-color: var(--player-1);
-  }
-  
-  .disc.player-2 {
-    background-color: var(--player-2);
-  }
-  
-  /* Responsive styles */
-  @media (max-width: 768px) {
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 1.5rem 1rem;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: -200px;
+      right: -200px;
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(59,130,246,0.12), transparent 70%);
+      pointer-events: none;
+    }
+
     .container {
-      padding: 1rem;
+      width: 100%;
+      max-width: 560px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
 
-    .cell {
-      width: 3rem;
-      height: 3rem;
-    }
-
-    .disc {
-      width: 2.5rem;
-      height: 2.5rem;
-    }
-  }
-
-  @media (max-width: 480px) {
     h1 {
-      font-size: 1.5rem;
+      font-size: 2rem;
+      font-weight: 800;
+      margin-bottom: 1rem;
+      background: linear-gradient(135deg, var(--player-1), var(--player-2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* Scoreboard */
+    .scoreboard {
+      display: flex;
+      gap: 1.5rem;
+      margin-bottom: 1rem;
+      padding: 0.8rem 1.5rem;
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      border-radius: 50px;
+      backdrop-filter: blur(8px);
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .scoreboard span { color: var(--text-muted); }
+    .scoreboard .p1-score { color: var(--player-1); font-weight: 700; }
+    .scoreboard .p2-score { color: var(--player-2); font-weight: 700; }
+    .scoreboard .draw-score { color: #a1a1b5; font-weight: 700; }
+
+    /* Column indicators */
+    .column-indicators {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      width: 100%;
+      max-width: 420px;
+      height: 40px;
+      margin-bottom: 4px;
+    }
+
+    .indicator-cell {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .indicator-disc {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      opacity: 0.5;
+      animation: indicator-bounce 0.5s ease;
+    }
+
+    .player-1-indicator { background: var(--player-1); }
+    .player-2-indicator { background: var(--player-2); }
+
+    @keyframes indicator-bounce {
+      0% { transform: translateY(-10px); opacity: 0; }
+      100% { transform: translateY(0); opacity: 0.5; }
+    }
+
+    /* Game board */
+    .game-board {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      grid-template-rows: repeat(6, 1fr);
+      gap: 6px;
+      background: var(--board-bg);
+      border: 4px solid var(--board-bg);
+      border-radius: 16px;
+      padding: 10px;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.5), 0 0 60px rgba(26,58,138,0.15);
     }
 
     .cell {
-      width: 2.5rem;
-      height: 2.5rem;
+      position: relative;
+      aspect-ratio: 1;
+      background: var(--board-bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      border-radius: 50%;
     }
 
     .disc {
-      width: 2rem;
-      height: 2rem;
+      width: 85%;
+      height: 85%;
+      border-radius: 50%;
+      background: #0a0a1a;
+      transition: background-color 0.2s ease;
+      box-shadow: inset 0 4px 8px rgba(0,0,0,0.3);
     }
-  }
-  
-</style>
 
+    .disc.player-1 {
+      background: var(--player-1);
+      box-shadow: inset 0 -3px 6px rgba(0,0,0,0.2), 0 0 12px rgba(239,68,68,0.3);
+    }
 
+    .disc.player-2 {
+      background: var(--player-2);
+      box-shadow: inset 0 -3px 6px rgba(0,0,0,0.2), 0 0 12px rgba(234,179,8,0.3);
+    }
 
+    .disc.new-move {
+      animation: disc-drop 0.4s ease-out;
+    }
+
+    @keyframes disc-drop {
+      0% { transform: translateY(-200px) scale(0.8); opacity: 0.5; }
+      60% { transform: translateY(5px) scale(1.05); }
+      80% { transform: translateY(-3px) scale(0.98); }
+      100% { transform: translateY(0) scale(1); opacity: 1; }
+    }
+
+    .disc.winning {
+      animation: win-glow 0.6s ease-in-out infinite alternate;
+    }
+
+    @keyframes win-glow {
+      from { transform: scale(1); filter: brightness(1); }
+      to { transform: scale(1.1); filter: brightness(1.3); }
+    }
+
+    .cell:hover .disc:not(.player-1):not(.player-2) {
+      background: rgba(255,255,255,0.1);
+    }
+
+    /* Game status */
+    .game-status {
+      margin-top: 1rem;
+      text-align: center;
+      min-height: 60px;
+    }
+
+    .current-turn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .player-disc {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+    }
+
+    .player-1-disc { background: var(--player-1); box-shadow: 0 0 8px rgba(239,68,68,0.4); }
+    .player-2-disc { background: var(--player-2); box-shadow: 0 0 8px rgba(234,179,8,0.4); }
+
+    .winner-message, .draw-message {
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .winner-message {
+      background: linear-gradient(135deg, #22c55e, #06b6d4);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .draw-message { color: #a1a1b5; }
+
+    .btn {
+      padding: 0.6rem 1.5rem;
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #fff;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn-new-game {
+      background: linear-gradient(135deg, #8b5cf6, #3b82f6);
+      box-shadow: 0 4px 15px rgba(139,92,246,0.3);
+      margin-right: 0.5rem;
+    }
+
+    .btn-new-game:hover {
+      transform: scale(1.05);
+      box-shadow: 0 6px 25px rgba(139,92,246,0.4);
+    }
+
+    .btn-secondary {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: #a1a1b5;
+    }
+
+    .btn-secondary:hover {
+      background: rgba(255,255,255,0.1);
+      color: #fff;
+    }
+
+    .button-container {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 0.75rem;
+      justify-content: center;
+    }
+
+    @media (max-width: 480px) {
+      h1 { font-size: 1.5rem; }
+      .game-board { max-width: 340px; gap: 4px; padding: 8px; }
+      .scoreboard { gap: 1rem; font-size: 0.75rem; padding: 0.6rem 1rem; }
+    }
+  </style>
 </head>
 <body>
   <div class="container">
-    <h1>Drop n Connect</h1>
-    
-  
+    <h1>🔴 Drop n Connect 🟡</h1>
+
+    <div class="scoreboard">
+      <span>🔴 P1: <span class="p1-score" id="player1-score">0</span></span>
+      <span>🟡 P2: <span class="p2-score" id="player2-score">0</span></span>
+      <span>🤝 Draw: <span class="draw-score" id="draws-score">0</span></span>
+    </div>
 
     <div class="game-board-container">
-      <!-- Column hover indicators -->
       <div class="column-indicators">
         <div class="indicator-cell" data-col="0"></div>
         <div class="indicator-cell" data-col="1"></div>
@@ -168,402 +296,255 @@
         <div class="indicator-cell" data-col="6"></div>
       </div>
 
-      <!-- Main board -->
       <div class="game-board" id="game-board"></div>
     </div>
-    
+
     <div class="game-status" id="game-status">
       <div class="current-turn">
         <span>Player 1's turn</span>
         <div class="player-disc player-1-disc"></div>
       </div>
     </div>
-    
+
     <div class="button-container">
-      <!-- <button id="new-game-btn" class="btn">New Game</button> -->
-      <!-- <button id="reset-scores-btn" class="btn btn-secondary">Reset Scores</button> -->
+      <button id="new-game-btn" class="btn btn-new-game">🔁 New Game</button>
+      <button id="reset-scores-btn" class="btn btn-secondary">🔄 Reset Scores</button>
     </div>
   </div>
-  
-  <script >
 
+  <script>
+    // Constants
+    const ROWS = 6;
+    const COLS = 7;
+    const EMPTY = 0;
+    const PLAYER_1 = 1;
+    const PLAYER_2 = 2;
 
-// Constants
-const ROWS = 6;
-const COLS = 7;
-const EMPTY = 0;
-const PLAYER_1 = 1;
-const PLAYER_2 = 2;
+    // Game state
+    const gameState = {
+      board: createEmptyBoard(),
+      currentPlayer: PLAYER_1,
+      winner: null,
+      isDraw: false,
+      winningCombination: null,
+      lastMove: null,
+      scores: { player1: 0, player2: 0, draws: 0 }
+    };
 
-// Game state
-const gameState = {
-  board: createEmptyBoard(),
-  currentPlayer: PLAYER_1,
-  winner: null,
-  isDraw: false,
-  winningCombination: null,
-  lastMove: null,
-  scores: {
-    player1: 0,
-    player2: 0,
-    draws: 0
-  }
-};
+    // DOM Elements
+    const boardElement = document.getElementById('game-board');
+    const gameStatusElement = document.getElementById('game-status');
+    const player1ScoreElement = document.getElementById('player1-score');
+    const player2ScoreElement = document.getElementById('player2-score');
+    const drawsScoreElement = document.getElementById('draws-score');
+    const newGameButton = document.getElementById('new-game-btn');
+    const resetScoresButton = document.getElementById('reset-scores-btn');
 
-// DOM Elements
-const boardElement = document.getElementById('game-board');
-const gameStatusElement = document.getElementById('game-status');
-const player1ScoreElement = document.getElementById('player1-score');
-const player2ScoreElement = document.getElementById('player2-score');
-const drawsScoreElement = document.getElementById('draws-score');
-const newGameButton = document.getElementById('new-game-btn');
-const resetScoresButton = document.getElementById('reset-scores-btn');
-const indicatorCells = document.querySelectorAll('.indicator-cell');
-
-// // Event listeners
-// newGameButton.addEventListener('click', resetGame);
-// resetScoresButton.addEventListener('click', resetScores);
-
-// Initialize board
-initializeBoard();
-updateScoreboard();
-
-// Functions
-function createEmptyBoard() {
-  return Array(ROWS).fill().map(() => Array(COLS).fill(EMPTY));
-}
-
-function initializeBoard() {
-  boardElement.innerHTML = '';
-  
-  // Create cells for the board
-  for (let row = 0; row < ROWS; row++) {
-    for (let col = 0; col < COLS; col++) {
-      const cell = document.createElement('div');
-      cell.className = 'cell';
-      cell.dataset.row = row;
-      cell.dataset.col = col;
-      
-      // Add background circle
-      const cellInner = document.createElement('div');
-      cellInner.className = 'cell-inner';
-      
-      // Add the disc element
-      const disc = document.createElement('div');
-      disc.className = 'disc';
-      disc.dataset.row = row;
-      disc.dataset.col = col;
-      
-      cell.appendChild(cellInner);
-      cell.appendChild(disc);
-      
-      // Add click event to place disc
-      cell.addEventListener('click', () => handleColumnClick(col));
-      
-      // Add hover events for column highlighting
-      cell.addEventListener('mouseenter', () => handleColumnHover(col));
-      cell.addEventListener('mouseleave', handleColumnLeave);
-      
-      boardElement.appendChild(cell);
-    }
-  }
-  
-  updateBoardUI();
-  updateGameStatus();
-}
-
-function updateBoardUI() {
-  // Update all cells based on the current board state
-  const discElements = document.querySelectorAll('.disc');
-  
-  discElements.forEach(disc => {
-    const row = parseInt(disc.dataset.row);
-    const col = parseInt(disc.dataset.col);
-    const cellValue = gameState.board[row][col];
-    
-    // Reset all classes first
-    disc.className = 'disc';
-    
-    // Set appropriate player class
-    if (cellValue === PLAYER_1) {
-      disc.classList.add('player-1');
-    } else if (cellValue === PLAYER_2) {
-      disc.classList.add('player-2');
-    }
-    
-    // Highlight winning discs
-    if (isWinningPosition(row, col)) {
-      disc.classList.add('winning');
-    }
-    
-    // Add animation for last move
-    if (gameState.lastMove && gameState.lastMove.row === row && gameState.lastMove.col === col) {
-      disc.classList.add('new-move');
-      
-      // Add shadow effect after animation completes
-      setTimeout(() => {
-        disc.classList.add('shadow-effect');
-        
-        // Remove shadow after a short time
-        setTimeout(() => {
-          disc.classList.remove('shadow-effect');
-        }, 300);
-      }, 500);
-    }
-  });
-}
-
-function handleColumnClick(col) {
-  // If game is over or column is full, do nothing
-  if (gameState.winner || gameState.isDraw) return;
-  
-  const row = findAvailableRow(col);
-  if (row === -1) return; // Column is full
-  
-  // Place disc
-  gameState.board[row][col] = gameState.currentPlayer;
-  gameState.lastMove = { row, col };
-  
-  // Check for win
-  const winningCombination = checkWin(gameState.currentPlayer);
-  const winner = winningCombination ? gameState.currentPlayer : null;
-  
-  // Check for draw
-  const isDraw = !winner && checkDraw();
-  
-  // Update scores if game is over
-  if (winner) {
-    if (winner === PLAYER_1) {
-      gameState.scores.player1++;
-    } else {
-      gameState.scores.player2++;
-    }
-  } else if (isDraw) {
-    gameState.scores.draws++;
-  }
-  
-  // Update game state
-  gameState.winner = winner;
-  gameState.isDraw = isDraw;
-  gameState.winningCombination = winningCombination;
-  gameState.currentPlayer = gameState.currentPlayer === PLAYER_1 ? PLAYER_2 : PLAYER_1;
-  
-  // Update UI
-  updateBoardUI();
-  updateGameStatus();
-  updateScoreboard();
-}
-
-function findAvailableRow(col) {
-  for (let row = ROWS - 1; row >= 0; row--) {
-    if (gameState.board[row][col] === EMPTY) {
-      return row;
-    }
-  }
-  return -1; // Column is full
-}
-
-function checkWin(player) {
-  // Check horizontal wins
-  for (let row = 0; row < ROWS; row++) {
-    for (let col = 0; col <= COLS - 4; col++) {
-      if (
-        gameState.board[row][col] === player &&
-        gameState.board[row][col + 1] === player &&
-        gameState.board[row][col + 2] === player &&
-        gameState.board[row][col + 3] === player
-      ) {
-        return [
-          { row, col },
-          { row, col: col + 1 },
-          { row, col: col + 2 },
-          { row, col: col + 3 },
-        ];
-      }
-    }
-  }
-
-  // Check vertical wins
-  for (let row = 0; row <= ROWS - 4; row++) {
-    for (let col = 0; col < COLS; col++) {
-      if (
-        gameState.board[row][col] === player &&
-        gameState.board[row + 1][col] === player &&
-        gameState.board[row + 2][col] === player &&
-        gameState.board[row + 3][col] === player
-      ) {
-        return [
-          { row, col },
-          { row: row + 1, col },
-          { row: row + 2, col },
-          { row: row + 3, col },
-        ];
-      }
-    }
-  }
-
-  // Check diagonal wins (down-right)
-  for (let row = 0; row <= ROWS - 4; row++) {
-    for (let col = 0; col <= COLS - 4; col++) {
-      if (
-        gameState.board[row][col] === player &&
-        gameState.board[row + 1][col + 1] === player &&
-        gameState.board[row + 2][col + 2] === player &&
-        gameState.board[row + 3][col + 3] === player
-      ) {
-        return [
-          { row, col },
-          { row: row + 1, col: col + 1 },
-          { row: row + 2, col: col + 2 },
-          { row: row + 3, col: col + 3 },
-        ];
-      }
-    }
-  }
-
-  // Check diagonal wins (up-right)
-  for (let row = 3; row < ROWS; row++) {
-    for (let col = 0; col <= COLS - 4; col++) {
-      if (
-        gameState.board[row][col] === player &&
-        gameState.board[row - 1][col + 1] === player &&
-        gameState.board[row - 2][col + 2] === player &&
-        gameState.board[row - 3][col + 3] === player
-      ) {
-        return [
-          { row, col },
-          { row: row - 1, col: col + 1 },
-          { row: row - 2, col: col + 2 },
-          { row: row - 3, col: col + 3 },
-        ];
-      }
-    }
-  }
-
-  return null; // No win found
-}
-
-function checkDraw() {
-  return gameState.board[0].every(cell => cell !== EMPTY);
-}
-
-function isWinningPosition(row, col) {
-  if (!gameState.winningCombination) return false;
-  
-  return gameState.winningCombination.some(
-    pos => pos.row === row && pos.col === col
-  );
-}
-
-function resetGame() {
-  gameState.board = createEmptyBoard();
-  gameState.currentPlayer = PLAYER_1;
-  gameState.winner = null;
-  gameState.isDraw = false;
-  gameState.winningCombination = null;
-  gameState.lastMove = null;
-  
-  updateBoardUI();
-  updateGameStatus();
-}
-
-function resetScores() {
-  gameState.scores = {
-    player1: 0,
-    player2: 0,
-    draws: 0
-  };
-  
-  resetGame();
-  updateScoreboard();
-}
-
-function updateScoreboard() {
-  player1ScoreElement.textContent = gameState.scores.player1;
-  player2ScoreElement.textContent = gameState.scores.player2;
-  drawsScoreElement.textContent = gameState.scores.draws;
-}
-
-function updateGameStatus() {
-  // Clear previous status
-  gameStatusElement.innerHTML = '';
-  
-  if (gameState.winner) {
-    // Winner message
-    const winnerMessage = document.createElement('div');
-    winnerMessage.className = 'winner-message';
-    winnerMessage.innerHTML = `
-      Player ${gameState.winner} 
-      <div class="player-disc ${gameState.winner === PLAYER_1 ? 'player-1-disc' : 'player-2-disc'}"></div>
-      wins!
-    `;
-    
-    // New game button
-    const newGameButton = document.createElement('button');
-    newGameButton.className = 'btn btn-new-game';
-    newGameButton.textContent = 'New Game';
+    // Event listeners
     newGameButton.addEventListener('click', resetGame);
-    
-    gameStatusElement.appendChild(winnerMessage);
-    gameStatusElement.appendChild(newGameButton);
-  } else if (gameState.isDraw) {
-    // Draw message
-    const drawMessage = document.createElement('div');
-    drawMessage.className = 'draw-message';
-    drawMessage.textContent = "It's a draw!";
-    
-    // New game button
-    const newGameButton = document.createElement('button');
-    newGameButton.className = 'btn btn-new-game';
-    newGameButton.textContent = 'New Game';
-    newGameButton.addEventListener('click', resetGame);
-    
-    gameStatusElement.appendChild(drawMessage);
-    gameStatusElement.appendChild(newGameButton);
-  } else {
-    // Current player turn
-    const currentTurn = document.createElement('div');
-    currentTurn.className = 'current-turn';
-    currentTurn.innerHTML = `
-      <span>Player ${gameState.currentPlayer}'s turn</span>
-      <div class="player-disc ${gameState.currentPlayer === PLAYER_1 ? 'player-1-disc' : 'player-2-disc'}"></div>
-    `;
-    
-    gameStatusElement.appendChild(currentTurn);
-  }
-}
+    resetScoresButton.addEventListener('click', resetScores);
 
-function handleColumnHover(col) {
-  if (gameState.winner || gameState.isDraw) return;
-  
-  // Show preview disc in the indicator
-  const indicatorCell = document.querySelector(`.indicator-cell[data-col="${col}"]`);
-  
-  if (!isColumnFull(col)) {
-    const previewDisc = document.createElement('div');
-    previewDisc.className = `indicator-disc ${gameState.currentPlayer === PLAYER_1 ? 'player-1-disc' : 'player-2-disc'}`;
-    
-    // Remove any existing preview discs
-    const existingPreview = indicatorCell.querySelector('.indicator-disc');
-    if (existingPreview) {
-      indicatorCell.removeChild(existingPreview);
+    // Initialize
+    initializeBoard();
+    updateScoreboard();
+
+    function createEmptyBoard() {
+      return Array(ROWS).fill(null).map(() => Array(COLS).fill(EMPTY));
     }
-    
-    indicatorCell.appendChild(previewDisc);
-  }
-}
 
-function handleColumnLeave() {
-  // Remove all preview discs
-  document.querySelectorAll('.indicator-disc').forEach(disc => {
-    disc.parentNode.removeChild(disc);
-  });
-}
+    function initializeBoard() {
+      boardElement.innerHTML = '';
+      for (let row = 0; row < ROWS; row++) {
+        for (let col = 0; col < COLS; col++) {
+          const cell = document.createElement('div');
+          cell.className = 'cell';
+          cell.dataset.row = row;
+          cell.dataset.col = col;
 
-function isColumnFull(col) {
-  return gameState.board[0][col] !== EMPTY;
-}
+          const disc = document.createElement('div');
+          disc.className = 'disc';
+          disc.dataset.row = row;
+          disc.dataset.col = col;
 
+          cell.appendChild(disc);
+          cell.addEventListener('click', () => handleColumnClick(col));
+          cell.addEventListener('mouseenter', () => handleColumnHover(col));
+          cell.addEventListener('mouseleave', handleColumnLeave);
+          boardElement.appendChild(cell);
+        }
+      }
+      updateBoardUI();
+      updateGameStatus();
+    }
+
+    function updateBoardUI() {
+      const discElements = document.querySelectorAll('.game-board .disc');
+      discElements.forEach(disc => {
+        const row = parseInt(disc.dataset.row);
+        const col = parseInt(disc.dataset.col);
+        const cellValue = gameState.board[row][col];
+
+        disc.className = 'disc';
+
+        if (cellValue === PLAYER_1) disc.classList.add('player-1');
+        else if (cellValue === PLAYER_2) disc.classList.add('player-2');
+
+        if (isWinningPosition(row, col)) disc.classList.add('winning');
+
+        if (gameState.lastMove && gameState.lastMove.row === row && gameState.lastMove.col === col) {
+          disc.classList.add('new-move');
+        }
+      });
+    }
+
+    function handleColumnClick(col) {
+      if (gameState.winner || gameState.isDraw) return;
+
+      const row = findAvailableRow(col);
+      if (row === -1) return;
+
+      gameState.board[row][col] = gameState.currentPlayer;
+      gameState.lastMove = { row, col };
+
+      const winningCombination = checkWin(gameState.currentPlayer);
+      const winner = winningCombination ? gameState.currentPlayer : null;
+      const isDraw = !winner && checkDraw();
+
+      if (winner) {
+        if (winner === PLAYER_1) gameState.scores.player1++;
+        else gameState.scores.player2++;
+      } else if (isDraw) {
+        gameState.scores.draws++;
+      }
+
+      gameState.winner = winner;
+      gameState.isDraw = isDraw;
+      gameState.winningCombination = winningCombination;
+      gameState.currentPlayer = gameState.currentPlayer === PLAYER_1 ? PLAYER_2 : PLAYER_1;
+
+      updateBoardUI();
+      updateGameStatus();
+      updateScoreboard();
+    }
+
+    function findAvailableRow(col) {
+      for (let row = ROWS - 1; row >= 0; row--) {
+        if (gameState.board[row][col] === EMPTY) return row;
+      }
+      return -1;
+    }
+
+    function checkWin(player) {
+      const b = gameState.board;
+      // Horizontal
+      for (let r = 0; r < ROWS; r++) {
+        for (let c = 0; c <= COLS - 4; c++) {
+          if (b[r][c] === player && b[r][c+1] === player && b[r][c+2] === player && b[r][c+3] === player) {
+            return [{row:r,col:c},{row:r,col:c+1},{row:r,col:c+2},{row:r,col:c+3}];
+          }
+        }
+      }
+      // Vertical
+      for (let r = 0; r <= ROWS - 4; r++) {
+        for (let c = 0; c < COLS; c++) {
+          if (b[r][c] === player && b[r+1][c] === player && b[r+2][c] === player && b[r+3][c] === player) {
+            return [{row:r,col:c},{row:r+1,col:c},{row:r+2,col:c},{row:r+3,col:c}];
+          }
+        }
+      }
+      // Diagonal ↘
+      for (let r = 0; r <= ROWS - 4; r++) {
+        for (let c = 0; c <= COLS - 4; c++) {
+          if (b[r][c] === player && b[r+1][c+1] === player && b[r+2][c+2] === player && b[r+3][c+3] === player) {
+            return [{row:r,col:c},{row:r+1,col:c+1},{row:r+2,col:c+2},{row:r+3,col:c+3}];
+          }
+        }
+      }
+      // Diagonal ↗
+      for (let r = 3; r < ROWS; r++) {
+        for (let c = 0; c <= COLS - 4; c++) {
+          if (b[r][c] === player && b[r-1][c+1] === player && b[r-2][c+2] === player && b[r-3][c+3] === player) {
+            return [{row:r,col:c},{row:r-1,col:c+1},{row:r-2,col:c+2},{row:r-3,col:c+3}];
+          }
+        }
+      }
+      return null;
+    }
+
+    function checkDraw() {
+      return gameState.board[0].every(cell => cell !== EMPTY);
+    }
+
+    function isWinningPosition(row, col) {
+      if (!gameState.winningCombination) return false;
+      return gameState.winningCombination.some(pos => pos.row === row && pos.col === col);
+    }
+
+    function resetGame() {
+      gameState.board = createEmptyBoard();
+      gameState.currentPlayer = PLAYER_1;
+      gameState.winner = null;
+      gameState.isDraw = false;
+      gameState.winningCombination = null;
+      gameState.lastMove = null;
+      updateBoardUI();
+      updateGameStatus();
+    }
+
+    function resetScores() {
+      gameState.scores = { player1: 0, player2: 0, draws: 0 };
+      resetGame();
+      updateScoreboard();
+    }
+
+    function updateScoreboard() {
+      player1ScoreElement.textContent = gameState.scores.player1;
+      player2ScoreElement.textContent = gameState.scores.player2;
+      drawsScoreElement.textContent = gameState.scores.draws;
+    }
+
+    function updateGameStatus() {
+      gameStatusElement.innerHTML = '';
+
+      if (gameState.winner) {
+        const msg = document.createElement('div');
+        msg.className = 'winner-message';
+        msg.innerHTML = `🎉 Player ${gameState.winner} <div class="player-disc ${gameState.winner === PLAYER_1 ? 'player-1-disc' : 'player-2-disc'}"></div> wins!`;
+        gameStatusElement.appendChild(msg);
+      } else if (gameState.isDraw) {
+        const msg = document.createElement('div');
+        msg.className = 'draw-message';
+        msg.textContent = "🤝 It's a draw!";
+        gameStatusElement.appendChild(msg);
+      } else {
+        const turn = document.createElement('div');
+        turn.className = 'current-turn';
+        turn.innerHTML = `<span>Player ${gameState.currentPlayer}'s turn</span><div class="player-disc ${gameState.currentPlayer === PLAYER_1 ? 'player-1-disc' : 'player-2-disc'}"></div>`;
+        gameStatusElement.appendChild(turn);
+      }
+    }
+
+    function handleColumnHover(col) {
+      if (gameState.winner || gameState.isDraw) return;
+      if (isColumnFull(col)) return;
+
+      const indicatorCell = document.querySelector(`.indicator-cell[data-col="${col}"]`);
+      // Remove any existing preview
+      const existing = indicatorCell.querySelector('.indicator-disc');
+      if (existing) existing.remove();
+
+      const preview = document.createElement('div');
+      preview.className = `indicator-disc ${gameState.currentPlayer === PLAYER_1 ? 'player-1-indicator' : 'player-2-indicator'}`;
+      indicatorCell.appendChild(preview);
+    }
+
+    function handleColumnLeave() {
+      document.querySelectorAll('.indicator-disc').forEach(d => d.remove());
+    }
+
+    function isColumnFull(col) {
+      return gameState.board[0][col] !== EMPTY;
+    }
   </script>
 </body>
 </html>
