@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reaction Time — Reflex Test</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #0a0a1a;
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      user-select: none;
+    }
+
+    h1 {
+      font-size: 2rem;
+      font-weight: 900;
+      background: linear-gradient(135deg, #22c55e, #06b6d4);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 8px;
+    }
+
+    .subtitle {
+      color: rgba(255,255,255,0.4);
+      font-size: 0.85rem;
+      margin-bottom: 24px;
+    }
+
+    .stats-row {
+      display: flex;
+      gap: 32px;
+      margin-bottom: 24px;
+    }
+    .stat-val { font-size: 1.5rem; font-weight: 900; color: #06b6d4; }
+    .stat-lbl { font-size: 0.7rem; color: rgba(255,255,255,0.35); text-transform: uppercase; letter-spacing: 1px; }
+
+    .target-area {
+      width: 320px;
+      height: 320px;
+      border-radius: 50%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.2s, box-shadow 0.3s, transform 0.15s;
+      margin-bottom: 24px;
+      position: relative;
+    }
+    .target-area:active { transform: scale(0.96); }
+
+    .target-area.waiting {
+      background: radial-gradient(circle, #ef4444 0%, #991b1b 100%);
+      box-shadow: 0 0 80px rgba(239,68,68,0.3);
+    }
+    .target-area.ready {
+      background: radial-gradient(circle, #22c55e 0%, #15803d 100%);
+      box-shadow: 0 0 80px rgba(34,197,94,0.4);
+      animation: glow-green 1.5s infinite;
+    }
+    .target-area.idle {
+      background: radial-gradient(circle, #1e1e3a 0%, #0f0f28 100%);
+      border: 3px solid rgba(139,92,246,0.3);
+      box-shadow: 0 0 40px rgba(139,92,246,0.1);
+    }
+    .target-area.too-early {
+      background: radial-gradient(circle, #f97316 0%, #9a3412 100%);
+      box-shadow: 0 0 60px rgba(249,115,22,0.3);
+    }
+    .target-area.result {
+      background: radial-gradient(circle, #1a1a3a 0%, #0f0f28 100%);
+      border: 3px solid rgba(6,182,212,0.4);
+      box-shadow: 0 0 60px rgba(6,182,212,0.2);
+    }
+
+    @keyframes glow-green {
+      0%, 100% { box-shadow: 0 0 60px rgba(34,197,94,0.3); }
+      50% { box-shadow: 0 0 100px rgba(34,197,94,0.5); }
+    }
+
+    .target-text {
+      font-size: 1.3rem;
+      font-weight: 700;
+      text-align: center;
+      padding: 20px;
+    }
+    .target-subtext {
+      font-size: 0.85rem;
+      opacity: 0.7;
+      margin-top: 8px;
+    }
+
+    .reaction-time {
+      font-size: 3.5rem;
+      font-weight: 900;
+      color: #06b6d4;
+    }
+    .reaction-unit {
+      font-size: 1rem;
+      color: rgba(255,255,255,0.5);
+    }
+
+    .history {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: center;
+      max-width: 400px;
+    }
+    .history-item {
+      padding: 6px 14px;
+      background: rgba(255,255,255,0.06);
+      border-radius: 8px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: rgba(255,255,255,0.6);
+    }
+    .history-item.best { color: #22c55e; border: 1px solid rgba(34,197,94,0.3); }
+
+    .rating {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-top: 4px;
+    }
+  </style>
+</head>
+<body>
+  <h1>⚡ Reaction Time</h1>
+  <p class="subtitle">Test your reflexes — click when it turns green!</p>
+
+  <div class="stats-row">
+    <div style="text-align:center">
+      <div class="stat-val" id="best">—</div>
+      <div class="stat-lbl">Best</div>
+    </div>
+    <div style="text-align:center">
+      <div class="stat-val" id="avg">—</div>
+      <div class="stat-lbl">Average</div>
+    </div>
+    <div style="text-align:center">
+      <div class="stat-val" id="tries">0</div>
+      <div class="stat-lbl">Tries</div>
+    </div>
+  </div>
+
+  <div class="target-area idle" id="target" onclick="handleClick()">
+    <div class="target-text" id="target-text">Click to start</div>
+  </div>
+
+  <div class="history" id="history"></div>
+
+  <script>
+    let state = 'idle'; // idle, waiting, ready, result, too-early
+    let startTime = 0;
+    let timeoutId = null;
+    let results = [];
+
+    const target = document.getElementById('target');
+    const targetText = document.getElementById('target-text');
+
+    function handleClick() {
+      if (state === 'idle' || state === 'result' || state === 'too-early') {
+        startWaiting();
+      } else if (state === 'waiting') {
+        tooEarly();
+      } else if (state === 'ready') {
+        recordResult();
+      }
+    }
+
+    function startWaiting() {
+      state = 'waiting';
+      target.className = 'target-area waiting';
+      targetText.innerHTML = 'Wait for green...<div class="target-subtext">Don\'t click yet!</div>';
+
+      const delay = 1500 + Math.random() * 3500; // 1.5s – 5s
+      timeoutId = setTimeout(() => {
+        state = 'ready';
+        target.className = 'target-area ready';
+        targetText.innerHTML = 'CLICK NOW!';
+        startTime = performance.now();
+      }, delay);
+    }
+
+    function tooEarly() {
+      clearTimeout(timeoutId);
+      state = 'too-early';
+      target.className = 'target-area too-early';
+      targetText.innerHTML = '⚠️ Too early!<div class="target-subtext">Click to try again</div>';
+    }
+
+    function recordResult() {
+      const elapsed = Math.round(performance.now() - startTime);
+      state = 'result';
+      target.className = 'target-area result';
+
+      results.push(elapsed);
+
+      const rating = getRating(elapsed);
+
+      targetText.innerHTML =
+        `<div class="reaction-time">${elapsed}<span class="reaction-unit"> ms</span></div>
+         <div class="rating" style="color:${rating.color}">${rating.text}</div>
+         <div class="target-subtext">Click to try again</div>`;
+
+      updateStats();
+      updateHistory();
+    }
+
+    function getRating(ms) {
+      if (ms < 150) return { text: '🤖 Inhuman!', color: '#a855f7' };
+      if (ms < 200) return { text: '⚡ Lightning!', color: '#22c55e' };
+      if (ms < 250) return { text: '🔥 Blazing Fast!', color: '#06b6d4' };
+      if (ms < 300) return { text: '👍 Great', color: '#eab308' };
+      if (ms < 400) return { text: '😊 Average', color: '#f97316' };
+      return { text: '🐢 Keep Trying', color: '#ef4444' };
+    }
+
+    function updateStats() {
+      const best = Math.min(...results);
+      const avg = Math.round(results.reduce((a,b) => a+b, 0) / results.length);
+
+      document.getElementById('best').textContent = best + 'ms';
+      document.getElementById('avg').textContent = avg + 'ms';
+      document.getElementById('tries').textContent = results.length;
+    }
+
+    function updateHistory() {
+      const container = document.getElementById('history');
+      const best = Math.min(...results);
+      container.innerHTML = results.slice(-10).map(r =>
+        `<div class="history-item${r === best ? ' best' : ''}">${r}ms</div>`
+      ).join('');
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Word Scramble — Unscramble the Word</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #0a0a1a;
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .bg-orb {
+      position: fixed; border-radius: 50%; filter: blur(120px); opacity: 0.25; z-index: 0;
+      animation: float 10s ease-in-out infinite;
+    }
+    .bg-orb--1 { width: 350px; height: 350px; background: #a855f7; top: -80px; right: -80px; }
+    .bg-orb--2 { width: 250px; height: 250px; background: #f97316; bottom: -60px; left: -60px; animation-delay: -5s; }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-25px); }
+    }
+
+    .container { position: relative; z-index: 1; text-align: center; max-width: 500px; width: 100%; }
+
+    h1 {
+      font-size: 2rem; font-weight: 900;
+      background: linear-gradient(135deg, #a855f7, #f97316);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      margin-bottom: 6px;
+    }
+    .subtitle { color: rgba(255,255,255,0.4); font-size: 0.85rem; margin-bottom: 24px; }
+
+    .stats-row { display: flex; justify-content: center; gap: 28px; margin-bottom: 20px; }
+    .stat-val { font-size: 1.6rem; font-weight: 900; color: #a855f7; }
+    .stat-lbl { font-size: 0.7rem; color: rgba(255,255,255,0.35); text-transform: uppercase; letter-spacing: 1px; }
+
+    .hint-text {
+      color: rgba(255,255,255,0.35);
+      font-size: 0.85rem;
+      margin-bottom: 8px;
+      min-height: 20px;
+      font-style: italic;
+    }
+
+    .letter-tiles {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 28px;
+    }
+
+    .tile {
+      width: 56px; height: 56px;
+      background: rgba(168,85,247,0.15);
+      border: 2px solid rgba(168,85,247,0.3);
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem; font-weight: 900;
+      color: #e9d5ff;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-transform: uppercase;
+    }
+    .tile:hover { background: rgba(168,85,247,0.3); border-color: #a855f7; transform: translateY(-3px); }
+    .tile.used { opacity: 0.25; pointer-events: none; transform: scale(0.9); }
+
+    .answer-area {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 20px;
+      min-height: 56px;
+      flex-wrap: wrap;
+    }
+
+    .answer-slot {
+      width: 50px; height: 50px;
+      border: 2px dashed rgba(255,255,255,0.15);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.3rem; font-weight: 900;
+      color: #f97316;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-transform: uppercase;
+    }
+    .answer-slot.filled {
+      background: rgba(249,115,22,0.15);
+      border: 2px solid rgba(249,115,22,0.4);
+    }
+    .answer-slot:hover.filled { transform: translateY(-2px); }
+
+    .btn-row {
+      display: flex; gap: 10px; justify-content: center; margin-bottom: 16px; flex-wrap: wrap;
+    }
+
+    .action-btn {
+      padding: 10px 24px;
+      border: 2px solid rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.05);
+      color: #fff;
+      border-radius: 10px;
+      font-family: inherit;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .action-btn:hover { border-color: #a855f7; background: rgba(168,85,247,0.15); }
+    .action-btn.submit {
+      background: linear-gradient(135deg, #a855f7, #f97316);
+      border: none;
+      color: #fff;
+    }
+    .action-btn.submit:hover { transform: scale(1.05); }
+    .action-btn.submit:disabled { opacity: 0.4; cursor: default; transform: none; }
+
+    .message {
+      font-size: 1.1rem; font-weight: 700; min-height: 28px; margin-bottom: 12px;
+      transition: opacity 0.3s;
+    }
+
+    .timer-bar {
+      width: 100%; height: 5px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 3px;
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+    .timer-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #a855f7, #f97316);
+      border-radius: 3px;
+      transition: width 1s linear;
+    }
+
+    .category-badge {
+      display: inline-block;
+      padding: 4px 14px;
+      background: rgba(168,85,247,0.2);
+      border-radius: 20px;
+      font-size: 0.75rem;
+      color: #c084fc;
+      margin-bottom: 16px;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-orb bg-orb--1"></div>
+  <div class="bg-orb bg-orb--2"></div>
+
+  <div class="container">
+    <h1>🔤 Word Scramble</h1>
+    <p class="subtitle">Unscramble the letters to form the word!</p>
+
+    <div class="stats-row">
+      <div><div class="stat-val" id="score">0</div><div class="stat-lbl">Score</div></div>
+      <div><div class="stat-val" id="level">1</div><div class="stat-lbl">Level</div></div>
+      <div><div class="stat-val" id="streak">0</div><div class="stat-lbl">Streak</div></div>
+    </div>
+
+    <div class="category-badge" id="category"></div>
+    <div class="hint-text" id="hint"></div>
+
+    <div class="timer-bar"><div class="timer-fill" id="timer-fill" style="width:100%"></div></div>
+
+    <div class="answer-area" id="answer-area"></div>
+
+    <div class="letter-tiles" id="tiles"></div>
+
+    <div class="btn-row">
+      <button class="action-btn" onclick="clearAnswer()">↩ Clear</button>
+      <button class="action-btn" onclick="shuffleTiles()">🔀 Shuffle</button>
+      <button class="action-btn" onclick="showHint()">💡 Hint</button>
+      <button class="action-btn submit" id="submit-btn" onclick="submitAnswer()" disabled>✓ Submit</button>
+    </div>
+
+    <div class="message" id="message"></div>
+  </div>
+
+  <script>
+    const WORDS = [
+      { word: 'GALAXY', hint: 'A massive system of stars', category: 'Space' },
+      { word: 'PYTHON', hint: 'A popular programming language', category: 'Tech' },
+      { word: 'ROCKET', hint: 'Vehicle that goes to space', category: 'Space' },
+      { word: 'PUZZLE', hint: 'A brain teaser or game', category: 'Fun' },
+      { word: 'JUNGLE', hint: 'Dense tropical forest', category: 'Nature' },
+      { word: 'CIPHER', hint: 'A secret code', category: 'Mystery' },
+      { word: 'KNIGHT', hint: 'Medieval warrior on horseback', category: 'History' },
+      { word: 'DRAGON', hint: 'Mythical fire-breathing creature', category: 'Fantasy' },
+      { word: 'OXYGEN', hint: 'We need it to breathe', category: 'Science' },
+      { word: 'QUARTZ', hint: 'A hard mineral crystal', category: 'Science' },
+      { word: 'FROZEN', hint: 'Turned to ice', category: 'Nature' },
+      { word: 'BRONZE', hint: 'An alloy of copper and tin', category: 'Science' },
+      { word: 'PIRATE', hint: 'Sails the seas looking for treasure', category: 'Adventure' },
+      { word: 'WIZARD', hint: 'A magical person', category: 'Fantasy' },
+      { word: 'SHADOW', hint: 'Dark area behind an object', category: 'Nature' },
+      { word: 'ANCHOR', hint: 'Keeps a ship in place', category: 'Adventure' },
+      { word: 'MATRIX', hint: 'Rectangular array of numbers', category: 'Tech' },
+      { word: 'TROPHY', hint: 'Award for winning', category: 'Fun' },
+      { word: 'ZOMBIE', hint: 'An undead creature', category: 'Fantasy' },
+      { word: 'CASTLE', hint: 'A large fortified building', category: 'History' },
+      { word: 'NEBULA', hint: 'Cloud of gas in space', category: 'Space' },
+      { word: 'COBALT', hint: 'Blue chemical element', category: 'Science' },
+      { word: 'VORTEX', hint: 'Spinning whirlpool of energy', category: 'Science' },
+      { word: 'PRISM', hint: 'Splits light into colors', category: 'Science' },
+      { word: 'EMBER', hint: 'Glowing piece of fire', category: 'Nature' },
+      { word: 'CRYPT', hint: 'Underground burial chamber', category: 'Mystery' },
+      { word: 'STORM', hint: 'Violent weather disturbance', category: 'Nature' },
+      { word: 'ORBIT', hint: 'Path around a planet', category: 'Space' },
+      { word: 'SWIFT', hint: 'Moving very fast', category: 'Tech' },
+      { word: 'BLAZE', hint: 'A large fierce fire', category: 'Nature' },
+    ];
+
+    let score = 0, level = 1, streak = 0;
+    let currentWord = null;
+    let answerLetters = [];
+    let tileStates = [];
+    let timerValue = 30, timerInterval = null;
+    let hintRevealed = false;
+
+    function scramble(word) {
+      let arr = word.split('');
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i+1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      // Ensure scrambled
+      if (arr.join('') === word) return scramble(word);
+      return arr;
+    }
+
+    function newRound() {
+      clearInterval(timerInterval);
+      timerValue = Math.max(15, 35 - level * 2);
+      hintRevealed = false;
+
+      currentWord = WORDS[Math.floor(Math.random() * WORDS.length)];
+      const scrambled = scramble(currentWord.word);
+
+      document.getElementById('category').textContent = '📂 ' + currentWord.category;
+      document.getElementById('hint').textContent = '';
+      document.getElementById('message').textContent = '';
+
+      answerLetters = [];
+      tileStates = scrambled.map(() => false);
+
+      renderTiles(scrambled);
+      renderAnswer();
+      startTimer();
+      updateUI();
+    }
+
+    function renderTiles(letters) {
+      const container = document.getElementById('tiles');
+      container.innerHTML = '';
+      letters.forEach((letter, i) => {
+        const tile = document.createElement('div');
+        tile.className = 'tile' + (tileStates[i] ? ' used' : '');
+        tile.textContent = letter;
+        tile.onclick = () => pickTile(i, letter);
+        container.appendChild(tile);
+      });
+    }
+
+    function renderAnswer() {
+      const container = document.getElementById('answer-area');
+      container.innerHTML = '';
+      for (let i = 0; i < currentWord.word.length; i++) {
+        const slot = document.createElement('div');
+        slot.className = 'answer-slot' + (answerLetters[i] ? ' filled' : '');
+        slot.textContent = answerLetters[i]?.letter || '';
+        if (answerLetters[i]) {
+          slot.onclick = () => removeLetter(i);
+        }
+        container.appendChild(slot);
+      }
+
+      document.getElementById('submit-btn').disabled = answerLetters.filter(Boolean).length !== currentWord.word.length;
+    }
+
+    function pickTile(index, letter) {
+      if (tileStates[index]) return;
+      if (answerLetters.filter(Boolean).length >= currentWord.word.length) return;
+
+      tileStates[index] = true;
+      // Find next empty slot
+      const nextEmpty = answerLetters.length;
+      answerLetters.push({ letter, tileIndex: index });
+
+      const tiles = document.getElementById('tiles').children;
+      tiles[index].classList.add('used');
+      renderAnswer();
+    }
+
+    function removeLetter(answerIndex) {
+      const removed = answerLetters[answerIndex];
+      if (!removed) return;
+      tileStates[removed.tileIndex] = false;
+      answerLetters.splice(answerIndex, 1);
+
+      const tiles = document.getElementById('tiles').children;
+      tiles[removed.tileIndex].classList.remove('used');
+      renderAnswer();
+    }
+
+    function clearAnswer() {
+      answerLetters.forEach(a => {
+        if (a) tileStates[a.tileIndex] = false;
+      });
+      answerLetters = [];
+      const tiles = document.getElementById('tiles').children;
+      Array.from(tiles).forEach(t => t.classList.remove('used'));
+      renderAnswer();
+    }
+
+    function shuffleTiles() {
+      clearAnswer();
+      const scrambled = scramble(currentWord.word);
+      tileStates = scrambled.map(() => false);
+      renderTiles(scrambled);
+    }
+
+    function showHint() {
+      if (!hintRevealed) {
+        document.getElementById('hint').textContent = '💡 ' + currentWord.hint;
+        hintRevealed = true;
+      }
+    }
+
+    function submitAnswer() {
+      const guess = answerLetters.map(a => a.letter).join('');
+      if (guess === currentWord.word) {
+        score += 10 + (hintRevealed ? 0 : 5) + Math.floor(timerValue / 2);
+        streak++;
+        level = Math.floor(streak / 3) + 1;
+        document.getElementById('message').textContent = '🎉 Correct! +' + (10 + (hintRevealed ? 0 : 5) + Math.floor(timerValue / 2)) + ' pts';
+        document.getElementById('message').style.color = '#22c55e';
+        updateUI();
+        setTimeout(newRound, 1200);
+      } else {
+        streak = 0;
+        document.getElementById('message').textContent = '❌ Wrong! The word was: ' + currentWord.word;
+        document.getElementById('message').style.color = '#ef4444';
+        updateUI();
+        setTimeout(newRound, 2000);
+      }
+    }
+
+    function startTimer() {
+      const timerFill = document.getElementById('timer-fill');
+      const maxTime = timerValue;
+      timerFill.style.width = '100%';
+
+      clearInterval(timerInterval);
+      timerInterval = setInterval(() => {
+        timerValue--;
+        timerFill.style.width = (timerValue / maxTime * 100) + '%';
+
+        if (timerValue <= 0) {
+          clearInterval(timerInterval);
+          streak = 0;
+          document.getElementById('message').textContent = '⏰ Time\'s up! The word was: ' + currentWord.word;
+          document.getElementById('message').style.color = '#f97316';
+          updateUI();
+          setTimeout(newRound, 2000);
+        }
+      }, 1000);
+    }
+
+    function updateUI() {
+      document.getElementById('score').textContent = score;
+      document.getElementById('level').textContent = level;
+      document.getElementById('streak').textContent = streak;
+    }
+
+    newRound();
+  </script>
+</body>
+</html>

@@ -4,8 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>JustPlayNoww — Free Online Games Portal</title>
-  <meta name="description" content="Play free online games instantly — no downloads, no login. Enjoy Flappy Bird, 2048, Pac-Man, Tic Tac Toe, Minesweeper, and more!" />
-  <meta name="keywords" content="free online games, browser games, play now, flappy bird, pacman, 2048, tic tac toe, minesweeper" />
+  <meta name="description" content="Play free online games instantly — no downloads, no login. Enjoy Breakout, Sudoku, Tower Stack, Reaction Time, and more! All built-in HTML games." />
+  <meta name="keywords" content="free online games, browser games, play now, breakout, sudoku, tic tac toe, minesweeper, tower stack, reaction time" />
   <meta name="author" content="krishna7805" />
 
   <!-- Open Graph -->
@@ -52,7 +52,6 @@
   <!-- Category Filters -->
   <div class="filter-tabs" role="tablist" aria-label="Filter games by category">
     <button class="filter-tab active" data-filter="all" role="tab" aria-selected="true">All Games</button>
-    <button class="filter-tab" data-filter="builtin" role="tab" aria-selected="false">🏠 Built-in</button>
     <button class="filter-tab" data-filter="arcade" role="tab" aria-selected="false">🕹️ Arcade</button>
     <button class="filter-tab" data-filter="puzzle" role="tab" aria-selected="false">🧩 Puzzle</button>
     <button class="filter-tab" data-filter="classic" role="tab" aria-selected="false">👾 Classic</button>
@@ -66,11 +65,11 @@
       <div class="stats-bar__label">Games</div>
     </div>
     <div class="stats-bar__item">
-      <div class="stats-bar__number">6</div>
+      <div class="stats-bar__number">12</div>
       <div class="stats-bar__label">Built-in</div>
     </div>
     <div class="stats-bar__item">
-      <div class="stats-bar__number">5</div>
+      <div class="stats-bar__number">4</div>
       <div class="stats-bar__label">Categories</div>
     </div>
     <div class="stats-bar__item">
@@ -97,101 +96,11 @@
   <!-- Game Gallery -->
   <main class="game-gallery" id="game-gallery">
 
-    <!-- Flappy Bird -->
-    <article class="game-card" data-category="arcade" data-name="Flappy Bird" id="game-flappy-bird">
-      <div class="game-card__image">
-        <img src="img/flappybird.png" alt="Flappy Bird game preview" loading="lazy" />
-        <span class="game-card__badge badge--arcade">Arcade</span>
-      </div>
-      <div class="game-card__content">
-        <h2 class="game-card__title">🐦 Flappy Bird</h2>
-        <p class="game-card__desc">Tap to fly through pipes — the ultimate test of timing and patience!</p>
-        <a href="https://nebez.github.io/floppybird/" target="gameFrame" class="game-card__play-btn" onclick="openGame('Flappy Bird')">
-          Play Now <span class="btn-arrow">→</span>
-        </a>
-      </div>
-    </article>
-
-    <!-- Chrome Dino -->
-    <article class="game-card" data-category="arcade" data-name="Chrome Dino" id="game-chrome-dino">
-      <div class="game-card__image">
-        <img src="img/t-rex.png" alt="Chrome Dino game preview" loading="lazy" />
-        <span class="game-card__badge badge--arcade">Arcade</span>
-      </div>
-      <div class="game-card__content">
-        <h2 class="game-card__title">🦖 Chrome Dino</h2>
-        <p class="game-card__desc">The classic offline dinosaur runner — jump over cacti and dodge pterodactyls!</p>
-        <a href="https://wayou.github.io/t-rex-runner/" target="gameFrame" class="game-card__play-btn" onclick="openGame('Chrome Dino')">
-          Play Now <span class="btn-arrow">→</span>
-        </a>
-      </div>
-    </article>
-
-    <!-- 2048 -->
-    <article class="game-card" data-category="puzzle" data-name="2048" id="game-2048">
-      <div class="game-card__image">
-        <img src="img/2048.png" alt="2048 game preview" loading="lazy" />
-        <span class="game-card__badge badge--puzzle">Puzzle</span>
-      </div>
-      <div class="game-card__content">
-        <h2 class="game-card__title">🔢 2048</h2>
-        <p class="game-card__desc">Slide tiles and combine numbers — reach the elusive 2048 tile to win!</p>
-        <a href="https://play2048.co/" target="gameFrame" class="game-card__play-btn" onclick="openGame('2048')">
-          Play Now <span class="btn-arrow">→</span>
-        </a>
-      </div>
-    </article>
-
-    <!-- Pac-Man -->
-    <article class="game-card" data-category="classic" data-name="Pac-Man" id="game-pacman">
-      <div class="game-card__image">
-        <img src="img/pacman.png" alt="Pac-Man game preview" loading="lazy" />
-        <span class="game-card__badge badge--classic">Classic</span>
-      </div>
-      <div class="game-card__content">
-        <h2 class="game-card__title">🟡 Pac-Man</h2>
-        <p class="game-card__desc">Eat all the dots, avoid the ghosts — the arcade legend returns!</p>
-        <a href="https://pacman.platzh1rsch.ch/" target="gameFrame" class="game-card__play-btn" onclick="openGame('Pac-Man')">
-          Play Now <span class="btn-arrow">→</span>
-        </a>
-      </div>
-    </article>
-
-    <!-- Snake -->
-    <article class="game-card" data-category="classic" data-name="Snake Game" id="game-snake">
-      <div class="game-card__image">
-        <img src="img/Snake.png" alt="Snake game preview" loading="lazy" />
-        <span class="game-card__badge badge--classic">Classic</span>
-      </div>
-      <div class="game-card__content">
-        <h2 class="game-card__title">🐍 Snake Game</h2>
-        <p class="game-card__desc">Guide the snake, eat food, and grow — don't crash into yourself!</p>
-        <a href="https://playsnake.org/" target="gameFrame" class="game-card__play-btn" onclick="openGame('Snake Game')">
-          Play Now <span class="btn-arrow">→</span>
-        </a>
-      </div>
-    </article>
-
-    <!-- One Shot Golf -->
-    <article class="game-card" data-category="skill" data-name="One Shot Golf" id="game-golf">
-      <div class="game-card__image">
-        <img src="img/oneshotgolf.png" alt="One Shot Golf game preview" loading="lazy" />
-        <span class="game-card__badge badge--skill">Skill</span>
-      </div>
-      <div class="game-card__content">
-        <h2 class="game-card__title">⛳ One Shot Golf</h2>
-        <p class="game-card__desc">Aim, adjust power, and sink it in one shot — physics-based golf fun!</p>
-        <a href="https://games.construct.net/3395/latest" target="gameFrame" class="game-card__play-btn" onclick="openGame('One Shot Golf')">
-          Play Now <span class="btn-arrow">→</span>
-        </a>
-      </div>
-    </article>
-
-    <!-- Tic Tac Toe (Built-in) -->
-    <article class="game-card" data-category="builtin" data-name="Tic Tac Toe" id="game-tictactoe">
+    <!-- Tic Tac Toe -->
+    <article class="game-card" data-category="classic" data-name="Tic Tac Toe" id="game-tictactoe">
       <div class="game-card__image">
         <img src="img/tictactoe.png" alt="Tic Tac Toe game preview" loading="lazy" />
-        <span class="game-card__badge badge--builtin">Built-in</span>
+        <span class="game-card__badge badge--classic">Classic</span>
       </div>
       <div class="game-card__content">
         <h2 class="game-card__title">❌ Tic Tac Toe</h2>
@@ -202,11 +111,11 @@
       </div>
     </article>
 
-    <!-- Drop n Connect (Built-in) -->
-    <article class="game-card" data-category="builtin" data-name="Drop n Connect" id="game-dropnconnect">
+    <!-- Drop n Connect -->
+    <article class="game-card" data-category="classic" data-name="Drop n Connect" id="game-dropnconnect">
       <div class="game-card__image">
         <img src="img/dropnconnect.png" alt="Drop n Connect game preview" loading="lazy" />
-        <span class="game-card__badge badge--builtin">Built-in</span>
+        <span class="game-card__badge badge--classic">Classic</span>
       </div>
       <div class="game-card__content">
         <h2 class="game-card__title">🔴 Drop n Connect</h2>
@@ -217,11 +126,11 @@
       </div>
     </article>
 
-    <!-- Memory Match (Built-in — NEW) -->
-    <article class="game-card" data-category="builtin" data-name="Memory Match" id="game-memory">
+    <!-- Memory Match -->
+    <article class="game-card" data-category="puzzle" data-name="Memory Match" id="game-memory">
       <div class="game-card__image">
         <img src="img/memory.png" alt="Memory Match game preview" loading="lazy" />
-        <span class="game-card__badge badge--builtin">Built-in</span>
+        <span class="game-card__badge badge--puzzle">Puzzle</span>
       </div>
       <div class="game-card__content">
         <h2 class="game-card__title">🃏 Memory Match</h2>
@@ -232,11 +141,11 @@
       </div>
     </article>
 
-    <!-- Whack-a-Mole (Built-in — NEW) -->
-    <article class="game-card" data-category="builtin" data-name="Whack-a-Mole" id="game-whackamole">
+    <!-- Whack-a-Mole -->
+    <article class="game-card" data-category="arcade" data-name="Whack-a-Mole" id="game-whackamole">
       <div class="game-card__image">
         <img src="img/whackamole.png" alt="Whack-a-Mole game preview" loading="lazy" />
-        <span class="game-card__badge badge--builtin">Built-in</span>
+        <span class="game-card__badge badge--arcade">Arcade</span>
       </div>
       <div class="game-card__content">
         <h2 class="game-card__title">🔨 Whack-a-Mole</h2>
@@ -247,7 +156,7 @@
       </div>
     </article>
 
-    <!-- Typing Speed Test (Built-in — NEW) -->
+    <!-- Typing Speed Test -->
     <article class="game-card" data-category="skill" data-name="Typing Speed Test" id="game-typing">
       <div class="game-card__image">
         <img src="img/typingtest.png" alt="Typing Speed Test game preview" loading="lazy" />
@@ -262,7 +171,7 @@
       </div>
     </article>
 
-    <!-- Minesweeper (Built-in — NEW) -->
+    <!-- Minesweeper -->
     <article class="game-card" data-category="puzzle" data-name="Minesweeper" id="game-minesweeper">
       <div class="game-card__image">
         <img src="img/minesweeper.png" alt="Minesweeper game preview" loading="lazy" />
@@ -272,6 +181,96 @@
         <h2 class="game-card__title">💣 Minesweeper</h2>
         <p class="game-card__desc">Clear the board without detonating mines — logic and luck combined!</p>
         <a href="HTML/minesweeper.html" target="gameFrame" class="game-card__play-btn" onclick="openGame('Minesweeper')">
+          Play Now <span class="btn-arrow">→</span>
+        </a>
+      </div>
+    </article>
+
+    <!-- Color Guess (NEW) -->
+    <article class="game-card" data-category="skill" data-name="Color Guess" id="game-colorguess">
+      <div class="game-card__image">
+        <img src="img/colorguess.png" alt="Color Guess game preview" loading="lazy" />
+        <span class="game-card__badge badge--skill">Skill</span>
+      </div>
+      <div class="game-card__content">
+        <h2 class="game-card__title">🎨 Color Guess</h2>
+        <p class="game-card__desc">Can you match the hex color? Test your designer eye in this addictive challenge!</p>
+        <a href="HTML/colorguess.html" target="gameFrame" class="game-card__play-btn" onclick="openGame('Color Guess')">
+          Play Now <span class="btn-arrow">→</span>
+        </a>
+      </div>
+    </article>
+
+    <!-- Breakout (NEW) -->
+    <article class="game-card" data-category="arcade" data-name="Breakout" id="game-breakout">
+      <div class="game-card__image">
+        <img src="img/breakout.png" alt="Breakout game preview" loading="lazy" />
+        <span class="game-card__badge badge--arcade">Arcade</span>
+      </div>
+      <div class="game-card__content">
+        <h2 class="game-card__title">🧱 Breakout</h2>
+        <p class="game-card__desc">Smash neon bricks with a bouncing ball — 5 levels of brick-breaking madness!</p>
+        <a href="HTML/breakout.html" target="gameFrame" class="game-card__play-btn" onclick="openGame('Breakout')">
+          Play Now <span class="btn-arrow">→</span>
+        </a>
+      </div>
+    </article>
+
+    <!-- Sudoku (NEW) -->
+    <article class="game-card" data-category="puzzle" data-name="Sudoku" id="game-sudoku">
+      <div class="game-card__image">
+        <img src="img/sudoku.png" alt="Sudoku game preview" loading="lazy" />
+        <span class="game-card__badge badge--puzzle">Puzzle</span>
+      </div>
+      <div class="game-card__content">
+        <h2 class="game-card__title">🧩 Sudoku</h2>
+        <p class="game-card__desc">Fill the 9×9 grid with logic — Easy, Medium, or Hard difficulty with hints!</p>
+        <a href="HTML/sudoku.html" target="gameFrame" class="game-card__play-btn" onclick="openGame('Sudoku')">
+          Play Now <span class="btn-arrow">→</span>
+        </a>
+      </div>
+    </article>
+
+    <!-- Reaction Time (NEW) -->
+    <article class="game-card" data-category="skill" data-name="Reaction Time" id="game-reaction">
+      <div class="game-card__image">
+        <img src="img/reaction.png" alt="Reaction Time game preview" loading="lazy" />
+        <span class="game-card__badge badge--skill">Skill</span>
+      </div>
+      <div class="game-card__content">
+        <h2 class="game-card__title">⚡ Reaction Time</h2>
+        <p class="game-card__desc">Click when it turns green — how fast are your reflexes? Track your best!</p>
+        <a href="HTML/reaction.html" target="gameFrame" class="game-card__play-btn" onclick="openGame('Reaction Time')">
+          Play Now <span class="btn-arrow">→</span>
+        </a>
+      </div>
+    </article>
+
+    <!-- Tower Stack (NEW) -->
+    <article class="game-card" data-category="arcade" data-name="Tower Stack" id="game-towerstack">
+      <div class="game-card__image">
+        <img src="img/towerstack.png" alt="Tower Stack game preview" loading="lazy" />
+        <span class="game-card__badge badge--arcade">Arcade</span>
+      </div>
+      <div class="game-card__content">
+        <h2 class="game-card__title">🏗️ Tower Stack</h2>
+        <p class="game-card__desc">Stack blocks precisely — perfect landings earn combos! How high can you go?</p>
+        <a href="HTML/towerstack.html" target="gameFrame" class="game-card__play-btn" onclick="openGame('Tower Stack')">
+          Play Now <span class="btn-arrow">→</span>
+        </a>
+      </div>
+    </article>
+
+    <!-- Word Scramble (NEW) -->
+    <article class="game-card" data-category="puzzle" data-name="Word Scramble" id="game-wordscramble">
+      <div class="game-card__image">
+        <img src="img/wordscramble.png" alt="Word Scramble game preview" loading="lazy" />
+        <span class="game-card__badge badge--puzzle">Puzzle</span>
+      </div>
+      <div class="game-card__content">
+        <h2 class="game-card__title">🔤 Word Scramble</h2>
+        <p class="game-card__desc">Unscramble the letters before time runs out — hints and shuffles included!</p>
+        <a href="HTML/wordscramble.html" target="gameFrame" class="game-card__play-btn" onclick="openGame('Word Scramble')">
           Play Now <span class="btn-arrow">→</span>
         </a>
       </div>
